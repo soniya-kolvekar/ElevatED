@@ -82,14 +82,23 @@ export function ResumeUpload() {
                 resumeUrl: realCloudinaryUrl,
                 skills: parsedData.skills || [],
                 atxScore: atxData.totalScore || 0,
-                level: Math.floor((atxData.totalScore || 0) / 10) + 1
+                level: Math.floor((atxData.totalScore || 0) / 10) + 1,
+                resumeData: {
+                    projects: parsedData.projects || [],
+                    domain: parsedData.domain || "General",
+                    dsaLevel: parsedData.dsaLevel || "Basic",
+                    experienceTimeline: parsedData.experienceTimeline || [],
+                    analyticalThinkingScore: parsedData.analyticalThinkingScore || 0,
+                    marketabilityTrend: parsedData.marketabilityTrend || 0
+                }
             };
 
             await updateDoc(doc(db, "users", user.uid), {
                 resumeUrl: realCloudinaryUrl,
                 skills: updatedUser.skills,
                 atxScore: updatedUser.atxScore,
-                level: updatedUser.level
+                level: updatedUser.level,
+                resumeData: updatedUser.resumeData
             });
 
             setUser(updatedUser);
@@ -125,7 +134,7 @@ export function ResumeUpload() {
                 disabled={uploading}
                 accept=".pdf,.docx"
             />
-            <div className="flex flex-col items-center justify-center p-8 text-center h-64 pointer-events-none relative z-0">
+            <div className="flex flex-col items-center justify-center p-8 text-center h-64 pointer-events-none relative z-20">
                 <div className="w-16 h-16 rounded-2xl bg-eggshell flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                     <UploadCloud className="w-8 h-8 text-jungle" />
                 </div>
@@ -151,7 +160,7 @@ export function ResumeUpload() {
 
                 {file && status !== "success" && (
                     <Button
-                        className="w-full relative z-20 pointer-events-auto"
+                        className="w-full relative z-30 pointer-events-auto"
                         onClick={(e) => { e.stopPropagation(); processResume(); }}
                         disabled={uploading}
                     >

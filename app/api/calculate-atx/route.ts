@@ -24,42 +24,41 @@ export async function POST(req: Request) {
             // Mock continuation if firestore isn't connected
         }
 
-        // Weight Preferences
-        // Technical Skills: 35%, DSA: 20%, Projects: 20%, Academics: 15%, Experience: 10%
+        // Weight Preferences (Total 1000)
+        // Technical Proficiency: 400
+        // Soft Skills / Potential: 250
+        // Academic Excellence: 200
+        // Experience & Portfolio: 150
 
-        // 1. Technical Skills Score (Out of 35)
-        // Formula: Cap at 10 skills. 3.5 points per relevant skill.
-        const skillPoints = Math.min((parsedData.skills?.length || 0) * 3.5, 35);
+        // 1. Technical Proficiency (Out of 400)
+        const skillPoints = Math.min((parsedData.skills?.length || 0) * 20, 200);
+        let dsaPoints = 50;
+        if (parsedData.dsaLevel === "Advanced") dsaPoints = 200;
+        else if (parsedData.dsaLevel === "Intermediate") dsaPoints = 140;
+        else if (parsedData.dsaLevel === "Basic") dsaPoints = 80;
+        const technicalScore = skillPoints + dsaPoints;
 
-        // 2. DSA Score (Out of 20)
-        let dsaPoints = 5;
-        if (parsedData.dsaLevel === "Advanced") dsaPoints = 20;
-        else if (parsedData.dsaLevel === "Intermediate") dsaPoints = 14;
-        else if (parsedData.dsaLevel === "Basic") dsaPoints = 8;
+        // 2. Soft Skills (Out of 250) - AI estimated
+        const softSkillsScore = parsedData.analyticalThinkingScore ? (parsedData.analyticalThinkingScore / 100) * 250 : 180;
 
-        // 3. Projects Score (Out of 20)
-        // 5 points per project cap at 4 
-        const projectPoints = Math.min((parsedData.projects?.length || 0) * 5, 20);
-
-        // 4. Academics Score (Out of 15)
-        // Linear scale from passing (4.0) to 10.0 CGPA
+        // 3. Academic Excellence (Out of 200)
         const cgpaRatio = Math.max(0, (cgpa - 4) / 6);
-        const academicPoints = Math.min(cgpaRatio * 15, 15);
+        const academicScore = Math.min(cgpaRatio * 200, 200);
 
-        // 5. Experience Score (Out of 10)
-        // 10 points for extensive internship, 5 for standard, 0 for none
-        const experiencePoints = parsedData.internship ? 10 : 0;
+        // 4. Experience & Portfolio (Out of 150)
+        const projectPoints = Math.min((parsedData.projects?.length || 0) * 25, 100);
+        const experiencePoints = parsedData.internship ? 50 : 0;
+        const expoScore = projectPoints + experiencePoints;
 
-        const totalScore = Math.floor(skillPoints + dsaPoints + projectPoints + academicPoints + experiencePoints);
+        const totalScore = Math.floor(technicalScore + softSkillsScore + academicScore + expoScore);
 
         return NextResponse.json({
-            totalScore,
+            totalScore: Math.min(totalScore, 1000),
             breakdown: {
-                skills: Number(skillPoints.toFixed(1)),
-                dsa: dsaPoints,
-                projects: projectPoints,
-                academics: Number(academicPoints.toFixed(1)),
-                experience: experiencePoints
+                technical: technicalScore,
+                softSkills: Math.round(softSkillsScore),
+                academic: Math.round(academicScore),
+                experience: expoScore
             }
         });
 

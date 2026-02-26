@@ -15,6 +15,14 @@ export interface UserProfile {
     xp?: number;
     level?: number;
     resumeUrl?: string;
+    resumeData?: {
+        projects: string[];
+        domain: string;
+        dsaLevel: string;
+        experienceTimeline: any[];
+        analyticalThinkingScore: number;
+        marketabilityTrend: number;
+    };
 }
 
 export async function createUserDocument(user: any, additionalData: Partial<UserProfile>) {
