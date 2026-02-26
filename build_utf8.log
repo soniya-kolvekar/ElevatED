@@ -1,0 +1,101 @@
+﻿Γû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+node.exe : ΓÜá The 
+"middleware" file 
+convention is deprecated. 
+Please use "proxy" 
+instead. Learn more: https
+://nextjs.org/docs/message
+s/middleware-to-proxy
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (Γ  
+  Üá The "middle...lewa   
+ re-to-proxy:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build 
+failed with 1 errors:
+./app/globals.css
+Error evaluating Node.js 
+code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` directly as 
+a PostCSS plugin. The 
+PostCSS plugin has moved 
+to a separate package, so 
+to continue using 
+Tailwind CSS with PostCSS 
+you'll need to install 
+`@tailwindcss/postcss` 
+and update your PostCSS 
+configuration.
+    [at at (C:\Users\ADARS
+H\Desktop\ElevatED\node_mo
+dules\tailwindcss\dist\lib
+.js:38:1643)]
+    at turbopack:///[turbo
+pack-node]/transforms/post
+css.ts:56:14 [C:\Users\ADA
+RSH\Desktop\ElevatED\.next
+\build\chunks\[root-of-the
+-server]__6d51cb5d._.js:16
+5:20]
+    [at <anonymous>]
+    at Module.init (turbop
+ack:///[turbopack-node]/tr
+ansforms/postcss.ts:43:33)
+ [C:\Users\ADARSH\Desktop\
+ElevatED\.next\build\chunk
+s\[root-of-the-server]__6d
+51cb5d._.js:155:35]
+    at run (turbopack:///[
+turbopack-node]/ipc/evalua
+te.ts:77:20) [C:\Users\ADA
+RSH\Desktop\ElevatED\.next
+\build\chunks\[root-of-the
+-server]__44695d76._.js:42
+9:26]
+    [at process.processTic
+ksAndRejections (node:inte
+rnal/process/task_queues:1
+05:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./app/globals.css 
+[Client Component Browser]
+    ./app/layout.tsx 
+[Server Component]
+
+
+    at Module.init (turbop
+ack:///[turbopack-node]/tr
+ansforms/postcss.ts:43:33)
+ [C:\Users\ADARSH\Desktop\
+ElevatED\.next\build\chunk
+s\[root-of-the-server]__6d
+51cb5d._.js:155:35])
+    at run (turbopack:///[
+turbopack-node]/ipc/evalua
+te.ts:77:20) [C:\Users\ADA
+RSH\Desktop\ElevatED\.next
+\build\chunks\[root-of-the
+-server]__44695d76._.js:42
+9:26])

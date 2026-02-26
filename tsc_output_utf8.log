@@ -1,0 +1,18 @@
+﻿[96m.next/types/validator.ts[0m:[93m51[0m:[93m39[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../app/admin/dashboard/page.js' or its corresponding type declarations.
+
+[7m51[0m   const handler = {} as typeof import("../../app/admin/dashboard/page.js")
+[7m  [0m [91m                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96m.next/types/validator.ts[0m:[93m69[0m:[93m39[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../app/recruiter/dashboard/page.js' or its corresponding type declarations.
+
+[7m69[0m   const handler = {} as typeof import("../../app/recruiter/dashboard/page.js")
+[7m  [0m [91m                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96m.next/types/validator.ts[0m:[93m78[0m:[93m39[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../app/student/dashboard/page.js' or its corresponding type declarations.
+
+[7m78[0m   const handler = {} as typeof import("../../app/student/dashboard/page.js")
+[7m  [0m [91m                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+Found 3 errors in the same file, starting at: .next/types/validator.ts[90m:51[0m
+
