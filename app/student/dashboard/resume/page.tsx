@@ -1,223 +1,272 @@
 "use client";
-
 import { useAuthStore } from "@/store/useAuthStore";
+
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import {
     FileText,
     RefreshCcw,
     Download,
-    ShieldCheck,
-    Zap,
-    AlertCircle,
     CheckCircle2,
-    Briefcase,
-    Milestone,
-    History
+    Sparkles,
+    BarChart3,
+    Activity
 } from "lucide-react";
 import { getStudentDashboardData } from "@/lib/student-data";
 import { cn } from "@/lib/utils";
 
 export default function ResumeAnalysisPage() {
     const { user } = useAuthStore();
+    const router = useRouter();
     const data = getStudentDashboardData(user);
 
+    const handleDownloadJson = () => {
+        if (!user?.resumeData) return;
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(user.resumeData, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "parsed_resume.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    };
+
+    // Attempt to extract numeric impact from projects for the Impact Card
+    const getProjectImpacts = () => {
+        const defaultImpacts = [
+            { label: "PROJECT METRICS", value: "Available" },
+            { label: "QUANTIFIABLE", value: "Yes" }
+        ];
+
+        if (!data.projects || data.projects.length === 0) return defaultImpacts;
+
+        const metrics: { label: string, value: string }[] = [];
+        data.projects.forEach(p => {
+            if (p.impact) {
+                // Look for percentages
+                const percentMatch = p.impact.match(/(\d+)%/);
+                if (percentMatch) metrics.push({ label: "IMPACT FACTOR", value: `${percentMatch[1]}%` });
+
+                // Look for mutlipliers (e.g. 10x, 2x)
+                const multiplierMatch = p.impact.match(/(\d+)x/i);
+                if (multiplierMatch) metrics.push({ label: "SCALE MULTIPLIER", value: `${multiplierMatch[1]}x` });
+
+                // Look for standalone numbers like 100k
+                const numMatch = p.impact.match(/(\d+[kKmM+])/);
+                if (numMatch && !percentMatch && !multiplierMatch) metrics.push({ label: "USER BASE / SCALE", value: numMatch[1] });
+            }
+        });
+
+        // Dedup or limit
+        const unique = Array.from(new Set(metrics.map(m => m.value))).map(v => metrics.find(m => m.value === v)!);
+
+        if (unique.length === 0) {
+            return [
+                { label: "PROJECTS DETECTED", value: data.projects.length.toString() },
+                { label: "MEASURABLE IMPACT", value: "Review Info" }
+            ];
+        }
+
+        return unique.slice(0, 3); // Max 3 impacts to display
+    };
+
+    const projectImpacts = getProjectImpacts();
+
     return (
-        <div className="space-y-8 pb-12">
-            <div className="flex items-center justify-between">
+        <div className="space-y-8 pb-12 bg-[#f8f6f0] min-h-screen pt-4 px-4 md:px-0 max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
-                        <span className="hover:text-jungle cursor-pointer">Dashboard</span>
-                        <span>/</span>
-                        <span className="text-jungle">Resume Analysis</span>
+                    <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">
+                        <span className="cursor-pointer">Dashboard</span>
+                        <span>›</span>
+                        <span className="text-[#4a7c59]">Resume Analysis</span>
                     </div>
-                    <h1 className="text-3xl font-black text-gray-900 leading-none">Intelligence Detailed View</h1>
-                    <p className="text-xs text-gray-400 font-bold mt-2 uppercase tracking-tight">Deep analysis of candidate profile: {user?.name}</p>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Intelligence Detailed View</h1>
+                    <p className="text-sm text-[#4a7c59] font-bold mt-1">Deep analysis of candidate profile: {user?.name || "User"}</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <Button variant="outline" className="h-11 px-6 rounded-xl border-emerald-600/20 text-emerald-700 bg-emerald-50/50 font-bold gap-2 hover:bg-emerald-100/50">
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <Button
+                        className="flex-1 md:flex-none h-11 px-6 rounded-full border-none bg-[#4a7c59] text-white hover:bg-[#3d664a] font-bold gap-2 shadow-sm transition-colors"
+                        onClick={() => router.push('/student/dashboard/insights?update=true')}
+                    >
                         <RefreshCcw size={16} /> Re-upload
                     </Button>
-                    <Button variant="outline" className="h-11 px-6 rounded-xl border-gray-100 text-gray-600 font-bold gap-2 hover:bg-gray-50">
+                    <Button
+                        variant="outline"
+                        className="flex-1 md:flex-none h-11 px-6 rounded-full border border-gray-200 text-[#4a7c59] bg-white font-bold gap-2 hover:bg-gray-50 shadow-sm transition-colors"
+                        onClick={handleDownloadJson}
+                    >
                         <Download size={16} /> Download Parsed JSON
                     </Button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
                 {/* Left: Raw Resume Preview */}
-                <div className="lg:col-span-5 h-full">
-                    <Card className="p-0 overflow-hidden flex flex-col h-[800px]">
-                        <div className="p-5 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                    <FileText size={16} />
-                                </div>
-                                <h3 className="text-sm font-black text-gray-900">Raw Resume Preview</h3>
+                <div className="lg:col-span-5 relative">
+                    <Card className="p-0 overflow-hidden flex flex-col border border-gray-100 bg-white rounded-[32px] shadow-sm relative min-h-[800px]">
+                        <div className="p-6 flex items-center justify-between border-b border-gray-50">
+                            <div className="flex items-center gap-2 text-[#4a7c59]">
+                                <FileText size={18} />
+                                <h3 className="text-sm font-black text-[#4a7c59]">Raw Resume Preview</h3>
                             </div>
-                            <div className="flex items-center gap-2 px-2 py-0.5 bg-amber-50 rounded-full border border-amber-100">
-                                <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
-                                <span className="text-[8px] font-black text-amber-600 uppercase tracking-widest">Parsing Active</span>
+                            <div className="px-3 py-1 bg-[#4a7c59] rounded-full text-[9px] font-black text-white uppercase tracking-widest shadow-sm flex items-center gap-1.5">
+                                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                                PARSING ACTIVE
                             </div>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-8 bg-gray-50/30 custom-scrollbar">
-                            <div className="max-w-[440px] mx-auto bg-white p-10 shadow-2xl shadow-gray-200/50 border border-gray-100 min-h-[600px]">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-1">{user?.name}</h2>
-                                <p className="text-xs text-gray-500 font-bold border-b border-gray-100 pb-4 mb-6">Senior Full-stack Developer | New York, NY</p>
 
-                                <div className="space-y-6">
-                                    <section>
-                                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Professional Summary</h4>
-                                        <p className="text-[11px] text-gray-700 leading-relaxed">
-                                            Results-oriented software engineer with <span className="bg-yellow-100 font-bold">6+ years of experience</span> in building scalable web applications. Expert in <span className="bg-emerald-100">React, Node.js, and Cloud Infrastructure</span>. Proven track record of reducing latency by <span className="text-emerald-600 font-bold underline">40%</span> for enterprise clients.
-                                        </p>
-                                    </section>
+                        <div className="flex-1 p-8 px-10 relative">
+                            <h2 className="text-2xl font-black text-gray-900 tracking-tight">{user?.name || "Candidate Name"}</h2>
+                            <p className="text-sm text-gray-500 mt-1 mb-8">{user?.resumeData?.domain || "Software Professional"}</p>
 
-                                    <section>
-                                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Experience</h4>
-                                        <div className="space-y-6">
-                                            <div>
-                                                <div className="flex justify-between items-start mb-1">
-                                                    <p className="text-[11px] font-black text-gray-900">Lead Developer - TechFlow Systems</p>
-                                                    <span className="text-[9px] font-bold text-gray-400 italic">2020 - Present</span>
-                                                </div>
-                                                <ul className="list-disc list-inside space-y-1 mt-2">
-                                                    <li className="text-[10px] text-gray-600">Architected a microservices-based platform using <span className="bg-emerald-50 border border-emerald-100 px-1 rounded">AWS Lambda</span>.</li>
-                                                    <li className="text-[10px] text-gray-600">Mentored a team of 8 junior developers.</li>
-                                                    <li className="text-[10px] text-gray-600">Implemented <span className="text-emerald-600 font-bold underline">CI/CD pipelines</span> reducing deployment time.</li>
+                            <div className="space-y-8">
+                                {/* Auto-Summary based on AI Advice */}
+                                <section>
+                                    <h4 className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Professional Summary</h4>
+                                    <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                                        {data.aiAdvice || "Awaiting AI interpretation of candidate profile."}
+                                    </p>
+                                </section>
+
+                                <section>
+                                    <h4 className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4">Experience</h4>
+                                    <div className="space-y-6">
+                                        {data.experiences.map((exp, idx) => (
+                                            <div key={idx} className="relative">
+                                                <h5 className="text-[13px] font-black text-gray-900">{exp.role} - {exp.company}</h5>
+                                                <p className="text-[10px] text-gray-400 font-bold mb-2">{exp.duration}</p>
+                                                <ul className="list-disc pl-4 space-y-1.5 text-gray-600 text-xs font-medium">
+                                                    <li>{exp.description}</li>
+                                                    {/* In a real scenario you would map bullet points, but currently API returns 1 string description */}
                                                 </ul>
                                             </div>
-                                            <div>
-                                                <div className="flex justify-between items-start mb-1">
-                                                    <p className="text-[11px] font-black text-gray-900">Software Engineer - InnovateHQ</p>
-                                                    <span className="text-[9px] font-bold text-gray-400 italic">2018 - 2020</span>
-                                                </div>
-                                                <ul className="list-disc list-inside space-y-1 mt-2">
-                                                    <li className="text-[10px] text-gray-600">Developed responsive UI using <span className="bg-blue-50 border border-blue-100 px-1 rounded">Tailwind CSS</span>.</li>
-                                                    <li className="text-[10px] text-gray-600">Integrated <span className="bg-emerald-50 border border-emerald-100 px-1 rounded">Stripe API</span> for global payments.</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </section>
+                                        ))}
+                                        {data.experiences.length === 0 && (
+                                            <p className="text-xs text-gray-400 italic">No experience found in resume.</p>
+                                        )}
+                                    </div>
+                                </section>
 
-                                    <section>
-                                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Education</h4>
-                                        <div>
-                                            <p className="text-[11px] font-black text-gray-900">B.S. Computer Science</p>
-                                            <p className="text-[10px] text-gray-500 font-medium italic">University of Texas at Austin, 2017</p>
-                                        </div>
-                                    </section>
-                                </div>
+                                <section>
+                                    <h4 className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4">Projects</h4>
+                                    <div className="space-y-4">
+                                        {data.projects.map((proj, idx) => (
+                                            <div key={idx} className="relative">
+                                                <h5 className="text-[13px] font-black text-gray-900">{proj.name}</h5>
+                                                <p className="text-xs text-gray-600 mt-1 mb-1 font-medium">{proj.description}</p>
+                                                {proj.impact && <p className="text-[10px] text-[#4a7c59] font-bold">• {proj.impact}</p>}
+                                            </div>
+                                        ))}
+                                        {data.projects.length === 0 && (
+                                            <p className="text-xs text-gray-400 italic">No projects found in resume.</p>
+                                        )}
+                                    </div>
+                                </section>
+                            </div>
+
+                            <div className="mt-16 pt-8 border-t border-dashed border-gray-200 text-center">
+                                <p className="text-[10px] font-bold text-gray-300 italic">End of extracted content preview</p>
                             </div>
                         </div>
                     </Card>
                 </div>
 
-                {/* Right: Analysis & Extracted Data */}
+                {/* Right: Intelligence Breakdown */}
                 <div className="lg:col-span-7 space-y-6">
-                    {/* ATX Score Badge */}
-                    <div className="flex justify-end mb-4">
-                        <div className="flex items-center gap-3 px-6 py-3 bg-white border border-gray-100 rounded-2xl shadow-soft">
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">ATX Score</span>
-                            <div className="flex items-baseline gap-0.5">
-                                <span className="text-3xl font-black text-jungle">84</span>
-                                <span className="text-sm font-black text-gray-300">/100</span>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Extracted Skills */}
-                    <Card>
-                        <h3 className="text-sm font-black text-gray-900 mb-6 flex items-center gap-3">
-                            <ShieldCheck className="text-emerald-500" size={18} /> Extracted Skills
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                            {["React.js", "Node.js", "TypeScript", "AWS Lambda", "PostgreSQL", "Tailwind CSS", "GraphQL", "Docker", "CI/CD"].map((skill) => (
-                                <div key={skill} className="px-4 py-2 bg-emerald-50/50 text-emerald-800 border border-emerald-600/10 rounded-xl text-[11px] font-bold">
-                                    {skill}
-                                </div>
+                    {/* Extracted Skills Map */}
+                    <Card className="p-8 border-none bg-white rounded-[32px] shadow-sm">
+                        <div className="flex items-center gap-2 mb-6">
+                            <CheckCircle2 size={24} className="text-[#5fb896]" />
+                            <h3 className="text-lg font-black text-gray-900">Extracted Skills</h3>
+                        </div>
+                        <div className="flex flex-wrap gap-3">
+                            {data.skills.map((skill, idx) => (
+                                <span
+                                    key={idx}
+                                    className="px-4 py-2 bg-[#f0f7f4] text-[#4a7c59] border border-[#d9ecd] rounded-full text-xs font-bold"
+                                >
+                                    {skill.name}
+                                </span>
                             ))}
-                            <div className="px-4 py-2 bg-gray-50 text-gray-400 border border-gray-100 rounded-xl text-[11px] font-bold">
-                                +4 More
-                            </div>
+                            {data.skills.length === 0 && (
+                                <p className="text-xs text-gray-400">No specific skills parsed.</p>
+                            )}
                         </div>
                     </Card>
 
-                    {/* Experience Timeline */}
-                    <Card>
-                        <h3 className="text-sm font-black text-gray-900 mb-8 flex items-center gap-3">
-                            <History className="text-tropicalTeal" size={18} /> Experience Timeline
-                        </h3>
-                        <div className="relative pl-8 space-y-8 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[1px] before:bg-gradient-to-b before:from-tropicalTeal before:to-gray-100">
-                            {data.experiences.map((exp, i) => (
-                                <div key={exp.role} className="relative group">
-                                    <div className={cn(
-                                        "absolute -left-8 top-1.5 w-6 h-6 rounded-full border-4 border-white flex items-center justify-center transition-all",
-                                        exp.current ? "bg-emerald-500 shadow-lg shadow-emerald-500/30 w-7 h-7 -left-[34px]" : "bg-gray-200"
-                                    )} />
-                                    <div className="flex justify-between items-start mb-1">
-                                        <h4 className="text-sm font-black text-gray-900">{exp.role}</h4>
-                                        {exp.current && (
-                                            <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 tracking-[0.1em] uppercase">Current</span>
-                                        )}
+                    {/* Timeline */}
+                    <Card className="p-8 border-none bg-white rounded-[32px] shadow-sm">
+                        <div className="flex items-center gap-2 mb-8">
+                            <Activity size={24} className="text-[#a5c3af]" />
+                            <h3 className="text-lg font-black text-gray-900">Experience Timeline</h3>
+                        </div>
+                        <div className="space-y-8 pl-2 relative before:absolute before:inset-0 before:ml-[11px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-100 before:to-transparent">
+                            {data.experiences.map((exp, idx) => (
+                                <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                    <div className="flex items-center justify-center w-6 h-6 rounded-full border-4 border-white bg-[#a5c3af] shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10" />
+                                    <div className="w-[calc(100%-3rem)] md:w-[calc(50%-1.5rem)] pb-4 md:pb-0">
+                                        <div className="flex flex-col md:group-odd:text-right group-odd:items-start md:group-odd:items-end group-even:items-start group-odd:pr-0 md:group-odd:pr-8 group-even:pl-4 md:group-even:pl-8">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h4 className="text-sm font-black text-gray-900">{exp.company}</h4>
+                                                {idx === 0 && <span className="text-[8px] bg-[#f0f7f4] text-[#4a7c59] px-2 py-0.5 rounded-sm font-black tracking-widest uppercase">Latest</span>}
+                                            </div>
+                                            <div className="text-xs font-bold text-[#4a7c59] mb-1">{exp.role}</div>
+                                            <div className="text-[10px] text-gray-400 font-bold mb-2">{exp.duration}</div>
+                                            <p className="text-xs text-gray-500 font-medium leading-relaxed max-w-[90%] line-clamp-2 md:group-odd:text-right text-left">
+                                                {exp.description}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tight mb-2">{exp.company} • {exp.duration}</p>
-                                    <p className="text-[11px] text-gray-400 font-medium leading-relaxed">{exp.description}</p>
                                 </div>
                             ))}
+                            {data.experiences.length === 0 && (
+                                <p className="text-xs text-gray-400 italic">No timeline data available.</p>
+                            )}
                         </div>
                     </Card>
 
                     {/* Project Impact */}
-                    <Card>
-                        <h3 className="text-sm font-black text-gray-900 mb-6 flex items-center gap-3">
-                            <Briefcase className="text-amber-500" size={18} /> Project Impact
-                        </h3>
-                        <div className="grid grid-cols-3 gap-6">
-                            {[
-                                { label: "Latency Reduction", value: "40%", color: "text-emerald-600" },
-                                { label: "Team Size Led", value: "8+", color: "text-tropicalTeal" },
-                                { label: "Deploy Frequency", value: "Daily", color: "text-jungle" },
-                            ].map((stat) => (
-                                <div key={stat.label} className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100 flex flex-col items-center">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{stat.label}</span>
-                                    <span className={cn("text-2xl font-black", stat.color)}>{stat.value}</span>
+                    <Card className="p-8 border-none bg-white rounded-[32px] shadow-sm">
+                        <div className="flex items-center gap-2 mb-6">
+                            <BarChart3 size={24} className="text-[#4a7c59]" />
+                            <h3 className="text-lg font-black text-gray-900">Project Impact</h3>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {projectImpacts.map((impact, idx) => (
+                                <div key={idx} className="p-5 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col justify-center">
+                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{impact.label}</p>
+                                    <p className="text-2xl font-black text-[#4a7c59]">{impact.value}</p>
                                 </div>
                             ))}
                         </div>
                     </Card>
 
-                    {/* AI Suggestions */}
-                    <Card className="bg-jungle/[0.02] border-jungle/10">
-                        <h3 className="text-sm font-black text-gray-900 mb-6 flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-jungle text-white flex items-center justify-center shadow-lg shadow-jungle/20">
-                                <Zap size={16} fill="white" />
+                    {/* AI Suggestions Box */}
+                    <Card className="p-8 border-none bg-[#a5c3af]/20 rounded-[32px] overflow-hidden relative group">
+                        <div className="flex items-center gap-2 mb-6 relative z-10">
+                            <div className="w-8 h-8 rounded-full bg-[#4a7c59] flex items-center justify-center text-white shrink-0">
+                                <Sparkles size={16} fill="currentColor" />
                             </div>
                             <div>
-                                <h4 className="text-sm font-black text-gray-900 leading-none">AI Suggestions</h4>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">How to improve ATX Score</p>
+                                <h3 className="text-base font-black text-[#3d664a] leading-none">AI Suggestions</h3>
+                                <p className="text-[10px] text-[#4a7c59] font-bold uppercase tracking-widest mt-1">How to optimize your resume</p>
                             </div>
-                        </h3>
-                        <div className="space-y-4">
-                            {data.aiSuggestions.map((suggestion, i) => {
-                                const [title, body] = suggestion.split(':');
-                                return (
-                                    <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 group transition-all hover:border-jungle/20">
-                                        <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                            <CheckCircle2 size={12} />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-[11px] font-black text-gray-900 leading-tight">
-                                                {title}{title.includes('?') ? '' : ':'}
-                                            </p>
-                                            <p className="text-[11px] text-gray-400 font-medium leading-relaxed">
-                                                {body || title}
-                                            </p>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                        </div>
+
+                        <div className="space-y-4 relative z-10">
+                            {data.aiSuggestions.map((suggestion, idx) => (
+                                <div key={idx} className="flex gap-3 items-start">
+                                    <CheckCircle2 size={16} className="text-[#4a7c59] shrink-0 mt-0.5" />
+                                    <p className="text-xs text-[#3d664a] font-medium leading-relaxed">
+                                        {suggestion}
+                                    </p>
+                                </div>
+                            ))}
                         </div>
                     </Card>
                 </div>

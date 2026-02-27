@@ -1,6 +1,6 @@
 "use client";
-
 import { useAuthStore } from "@/store/useAuthStore";
+
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { User, Bell, Shield, LogOut } from "lucide-react";
@@ -60,6 +60,7 @@ export default function SettingsPage() {
                     <LogOut size={20} /> Logout Account
                 </Button>
             </div>
+            
         </div>
     );
 }

@@ -1,333 +1,339 @@
 "use client";
-
 import { useState, useMemo } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
+
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
 import {
     Zap,
-    Target,
-    Trophy,
-    ChevronRight,
-    RotateCcw,
-    Sparkles,
+    TrendingUp,
     CheckCircle2,
     Save,
-    TrendingUp,
-    ArrowUpRight
+    RotateCcw,
+    Lightbulb,
+    Check,
+    LockIcon,
+    UnlockIcon,
+    CheckCircle
 } from "lucide-react";
 import { getStudentDashboardData } from "@/lib/student-data";
 import { cn } from "@/lib/utils";
 
 export default function SimulatorPage() {
     const { user } = useAuthStore();
-    const [targetCgpa, setTargetCgpa] = useState(8.8);
-    const [skills, setSkills] = useState({
-        python: true,
-        react: true,
-        sql: false,
-        aws: false
-    });
-    const [capstone, setCapstone] = useState(false);
-    const [mockScore, setMockScore] = useState(60);
-
     const data = useMemo(() => getStudentDashboardData(user), [user]);
+
+    // Baseline stats from real data
+    const baselineCgpa = user?.cgpa || 7.5;
+    const [targetCgpa, setTargetCgpa] = useState(Math.min(10, baselineCgpa + 0.5));
+
+    // Dynamic Skill Levers
+    const [skills, setSkills] = useState([
+        { id: 'python', name: 'Python (Adv)', bonus: 25, active: true },
+        { id: 'sql', name: 'SQL/NoSQL', bonus: 20, active: false },
+        { id: 'react', name: 'React.js', bonus: 30, active: true },
+        { id: 'aws', name: 'AWS Cloud', bonus: 35, active: false },
+    ]);
+
+    const [hasCapstone, setHasCapstone] = useState(true);
+    const [mockScore, setMockScore] = useState(60);
 
     // Simulated Logic
     const simulatedAtx = useMemo(() => {
         let score = data.atxScore;
-        if (targetCgpa > 7.5) score += (targetCgpa - 7.5) * 40;
-        if (skills.python) score += 30;
-        if (skills.react) score += 30;
-        if (skills.sql) score += 25;
-        if (skills.aws) score += 40;
-        if (capstone) score += 50;
-        score += (mockScore - 50) * 1.5;
+
+        // CGPA impact (normalized for 1000 scale)
+        if (targetCgpa > baselineCgpa) {
+            score += (targetCgpa - baselineCgpa) * 45;
+        }
+
+        // Skills impact
+        skills.forEach(s => {
+            if (s.active) score += s.bonus;
+        });
+
+        // Capstone impact
+        if (hasCapstone) score += 40;
+
+        // Mock Interview impact
+        if (mockScore > 50) {
+            score += (mockScore - 50) * 1.5;
+        }
+
         return Math.min(Math.round(score), 1000);
-    }, [data.atxScore, targetCgpa, skills, capstone, mockScore]);
+    }, [data.atxScore, targetCgpa, baselineCgpa, skills, hasCapstone, mockScore]);
 
-    const probability = useMemo(() => {
-        return Math.min(Math.round((simulatedAtx / 1000) * 100 + (capstone ? 5 : 0)), 100);
-    }, [simulatedAtx, capstone]);
+    const baseProbability = Math.min(Math.round((data.atxScore / 1000) * 100), 100) - 20; // Just for visual delta
+    const probability = Math.min(Math.round((simulatedAtx / 1000) * 100), 100);
 
-    const chartData = [
-        { name: 'MONTH 1', current: 30, simulated: 35 },
-        { name: 'MONTH 2', current: 35, simulated: 48 },
-        { name: 'MONTH 3', current: 40, simulated: 62 },
-        { name: 'MONTH 4', current: 42, simulated: 78 },
-        { name: 'FINAL DRIVE', current: 44, simulated: probability },
-    ];
-
-    const toggleSkill = (skill: keyof typeof skills) => {
-        setSkills(prev => ({ ...prev, [skill]: !prev[skill] }));
+    const toggleSkill = (id: string) => {
+        setSkills(prev => prev.map(s => s.id === id ? { ...s, active: !s.active } : s));
     };
 
     const resetAll = () => {
-        setTargetCgpa(8.8);
-        setSkills({ python: true, react: true, sql: false, aws: false });
-        setCapstone(false);
-        setMockScore(60);
+        setTargetCgpa(baselineCgpa);
+        setSkills(prev => prev.map(s => ({ ...s, active: false })));
+        setHasCapstone(false);
+        setMockScore(50);
     };
 
-    return (
-        <div className="space-y-8 pb-12">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-black text-gray-900 leading-none tracking-tight">Placement Readiness Simulator</h1>
-                <div className="flex items-center gap-2 text-gray-400">
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Simulation Mode Active</span>
-                    <div className="w-2 h-2 bg-jungle rounded-full animate-pulse"></div>
-                </div>
-            </div>
+    // Chart Data Generation (Keep the gradient area design, but add a baseline line)
+    const chartData = useMemo(() => {
+        const months = ['MONTH 1', 'MONTH 2', 'MONTH 3', 'MONTH 4', 'FINAL DRIVE'];
+        const baseStart = baseProbability;
+        const baseEnd = baseProbability + 5;
+        const simStart = baseProbability;
+        const simEnd = probability;
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Left Controls */}
-                <Card className="lg:col-span-1 h-fit space-y-8">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-black text-gray-900 leading-none">Improvement Levers</h3>
-                        <button onClick={resetAll} className="text-[10px] font-bold text-gray-300 uppercase tracking-widest hover:text-jungle flex items-center gap-1 transition-colors">
-                            <RotateCcw size={10} /> Reset All
+        return months.map((month, idx) => {
+            const progress = idx / (months.length - 1); // 0 to 1
+            return {
+                name: month,
+                current: Math.round(baseStart + (baseEnd - baseStart) * progress),
+                simulated: Math.round(simStart + (simEnd - simStart) * (progress * progress)) // Curve effect
+            };
+        });
+    }, [baseProbability, probability]);
+
+    return (
+        <div className="space-y-6 pb-12 max-w-7xl mx-auto px-4 md:px-0">
+            <div className="flex flex-col lg:flex-row gap-6">
+
+                {/* Improvement Levers Panel */}
+                <Card className="lg:w-[400px] shrink-0 p-6 shadow-sm border-gray-100 flex flex-col h-fit">
+                    <div className="flex justify-between items-center mb-8">
+                        <h2 className="text-xl font-black text-gray-900">Improvement Levers</h2>
+                        <button onClick={resetAll} className="text-xs font-bold text-[#5fb896] uppercase tracking-widest hover:underline">
+                            RESET ALL
                         </button>
                     </div>
 
-                    {/* CGPA Slider */}
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-end">
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Target CGPA Improvement</p>
-                            <span className="text-sm font-black text-jungle">{targetCgpa.toFixed(1)} / 10</span>
-                        </div>
-                        <input
-                            type="range"
-                            min="6.0"
-                            max="10.0"
-                            step="0.1"
-                            value={targetCgpa}
-                            onChange={(e) => setTargetCgpa(parseFloat(e.target.value))}
-                            className="w-full accent-jungle h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer"
-                        />
-                        <p className="text-[9px] text-gray-400 font-medium italic">Simulating a jump from current 7.2 to {targetCgpa}</p>
-                    </div>
-
-                    {/* Tech Stack Skills */}
-                    <div className="space-y-4">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">New Tech Stack Skills</p>
-                        <div className="grid grid-cols-2 gap-2">
-                            {[
-                                { id: 'python', label: 'Python (Adv)', key: 'python' },
-                                { id: 'sql', label: 'SQL/NoSQL', key: 'sql' },
-                                { id: 'react', label: 'React.js', key: 'react' },
-                                { id: 'aws', label: 'AWS Cloud', key: 'aws' },
-                            ].map((skill) => (
-                                <button
-                                    key={skill.id}
-                                    onClick={() => toggleSkill(skill.key as any)}
-                                    className={cn(
-                                        "px-3 py-2.5 rounded-xl text-[10px] font-bold border transition-all flex items-center gap-2",
-                                        skills[skill.key as keyof typeof skills]
-                                            ? "bg-jungle/10 border-jungle/20 text-jungle"
-                                            : "bg-white border-gray-100 text-gray-400 hover:border-gray-200"
-                                    )}
-                                >
-                                    {skills[skill.key as keyof typeof skills] ? <CheckCircle2 size={12} /> : <div className="w-3 h-3 border-2 border-gray-100 rounded-full" />}
-                                    {skill.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Capstone Project */}
-                    <div className="space-y-4">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Capstone Project Completion</p>
-                        <div
-                            onClick={() => setCapstone(!capstone)}
-                            className={cn(
-                                "p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
-                                capstone ? "bg-jungle border-jungle text-white" : "bg-gray-50 border-gray-100 text-gray-400"
-                            )}
-                        >
-                            <div className="flex items-center gap-3">
-                                <Zap className={cn("w-5 h-5", capstone ? "text-white" : "text-gray-300")} />
-                                <span className="text-[11px] font-black uppercase tracking-tight">Industry-Grade Project</span>
+                    <div className="space-y-8 flex-1">
+                        {/* Target CGPA */}
+                        <div>
+                            <div className="flex justify-between items-center mb-3">
+                                <label className="text-sm font-bold text-gray-900">Target CGPA Improvement</label>
+                                <span className="text-sm font-black text-[#8ec8b3] bg-[#f0f7f4] px-3 py-1 rounded-md">{targetCgpa.toFixed(1)} / 10</span>
                             </div>
-                            <div className={cn(
-                                "w-10 h-5 rounded-full relative transition-colors",
-                                capstone ? "bg-white/20" : "bg-gray-200"
-                            )}>
-                                <motion.div
-                                    className="absolute top-1 w-3 h-3 bg-white rounded-full"
-                                    animate={{ left: capstone ? "calc(100% - 16px)" : "4px" }}
-                                />
+                            <input
+                                type="range"
+                                min={baselineCgpa}
+                                max="10"
+                                step="0.1"
+                                value={targetCgpa}
+                                onChange={(e) => setTargetCgpa(parseFloat(e.target.value))}
+                                className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#5fb896]"
+                            />
+                            <p className="text-[10px] text-gray-400 font-bold italic mt-2">Simulating a jump from current {baselineCgpa.toFixed(1)} to {targetCgpa.toFixed(1)}</p>
+                        </div>
+
+                        {/* New Tech Stack Skills */}
+                        <div>
+                            <label className="text-sm font-bold text-gray-900 mb-3 block">New Tech Stack Skills</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                {skills.map(skill => (
+                                    <button
+                                        key={skill.id}
+                                        onClick={() => toggleSkill(skill.id)}
+                                        className={cn(
+                                            "flex items-center gap-2 px-4 py-3 rounded-xl border transition-all text-xs font-bold",
+                                            skill.active
+                                                ? "border-[#5fb896] bg-[#f0f7f4] text-[#4a7c59]"
+                                                : "border-gray-200 text-gray-500 hover:border-gray-300"
+                                        )}
+                                    >
+                                        <div className={cn("w-4 h-4 rounded-full flex items-center justify-center", skill.active ? "bg-[#5fb896] text-white" : "bg-gray-200 text-gray-400")}>
+                                            {skill.active ? <Check size={10} strokeWidth={4} /> : <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                                        </div>
+                                        {skill.name}
+                                    </button>
+                                ))}
                             </div>
                         </div>
-                    </div>
 
-                    {/* Mock Interview Score */}
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-end">
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Mock Interview Score</p>
-                            <span className="text-sm font-black text-jungle">{mockScore}%</span>
+                        {/* Capstone Project */}
+                        <div>
+                            <label className="text-sm font-bold text-gray-900 mb-3 block">Capstone Project Completion</label>
+                            <div
+                                onClick={() => setHasCapstone(!hasCapstone)}
+                                className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50 cursor-pointer hover:bg-gray-100/80 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <Zap size={16} className={hasCapstone ? "text-[#4a7c59]" : "text-gray-400"} />
+                                    <span className={cn("text-xs font-bold", hasCapstone ? "text-gray-900" : "text-gray-500")}>Industry-Grade Project</span>
+                                </div>
+                                <div className={cn("w-10 h-6 rounded-full transition-colors flex items-center px-1", hasCapstone ? "bg-[#4a7c59]" : "bg-gray-300")}>
+                                    <motion.div
+                                        className="w-4 h-4 rounded-full bg-white shadow-sm"
+                                        animate={{ x: hasCapstone ? 16 : 0 }}
+                                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <motion.div
-                                className="h-full bg-jungle"
-                                animate={{ width: `${mockScore}%` }}
+
+                        {/* Mock Interview Score */}
+                        <div>
+                            <div className="flex justify-between items-center mb-3">
+                                <label className="text-sm font-bold text-gray-900">Mock Interview Score</label>
+                                <span className="text-sm font-black text-gray-900">{mockScore}%</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                step="5"
+                                value={mockScore}
+                                onChange={(e) => setMockScore(parseFloat(e.target.value))}
+                                className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#4a7c59]"
                             />
                         </div>
-                        <input
-                            type="range"
-                            min="0"
-                            max="100"
-                            value={mockScore}
-                            onChange={(e) => setMockScore(parseInt(e.target.value))}
-                            className="w-full accent-jungle h-4 bg-transparent appearance-none cursor-pointer mt-[-10px] opacity-0"
-                        />
                     </div>
 
                     {/* AI Recommendation */}
-                    <div className="bg-tropicalTeal/5 border border-tropicalTeal/10 rounded-2xl p-4 space-y-3">
-                        <div className="flex items-center gap-2 text-tropicalTeal">
-                            <Sparkles size={14} />
-                            <span className="text-[10px] font-black uppercase tracking-widest">AI Recommendation</span>
+                    <div className="mt-8 bg-[#f0f7f4] rounded-2xl p-5 border border-[#e2efe9]">
+                        <div className="flex items-center gap-2 mb-2 text-[#5fb896]">
+                            <Lightbulb size={16} className="fill-current" />
+                            <span className="text-xs font-black uppercase tracking-widest">AI Recommendation</span>
                         </div>
-                        <p className="text-[11px] text-gray-600 font-medium leading-relaxed">
-                            Completing a <span className="text-tropicalTeal font-bold">Full-Stack Certification</span> and raising CGPA to <span className="text-tropicalTeal font-bold">8.5</span> would place you in the <span className="text-jungle font-bold">top 5%</span> of applicants for Tier-1 companies.
+                        <p className="text-xs text-gray-600 font-medium leading-relaxed">
+                            Completing a <strong className="text-gray-900">Full-Stack Certification</strong> and raising CGPA to <strong className="text-gray-900">8.5</strong> would place you in the <strong className="text-[#5fb896]">top 5%</strong> of applicants for Tier-1 companies.
                         </p>
                     </div>
                 </Card>
 
                 {/* Main Content Area */}
-                <div className="lg:col-span-3 space-y-8">
-                    {/* Top Stat Cards */}
+                <div className="flex-1 space-y-6">
+
+                    {/* Top Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card className="flex flex-col items-center justify-center py-10 relative overflow-hidden text-center group">
-                            <div className="absolute top-0 right-0 p-4 text-jungle/5 group-hover:scale-110 transition-transform duration-700">
-                                <TrendingUp size={140} />
+                        <Card className="p-8 border-gray-100 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                            <div className="absolute right-6 top-6 opacity-10 text-[#5fb896]"><TrendingUp size={40} /></div>
+                            <h3 className="text-xs font-black text-[#4a7c59]/70 uppercase tracking-widest mb-4">Simulated ATX Score</h3>
+                            <div className="flex items-baseline justify-center gap-1 mb-3">
+                                <span className="text-6xl font-black text-[#5fb896] leading-none">{simulatedAtx}</span>
+                                <span className="text-xl font-bold text-gray-400">/1000</span>
                             </div>
-                            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">Simulated ATX Score</p>
-                            <div className="flex items-baseline gap-1">
-                                <motion.span
-                                    className="text-6xl font-black text-gray-900 tracking-tighter"
-                                    key={simulatedAtx}
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                >
-                                    {simulatedAtx}
-                                </motion.span>
-                                <span className="text-xl font-black text-gray-300">/1000</span>
+                            <div className="inline-flex items-center gap-1 bg-[#f0f7f4] text-[#4a7c59] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-3">
+                                <TrendingUp size={12} /> +{simulatedAtx - data.atxScore} pts
                             </div>
-                            <div className="mt-6 flex items-center gap-2 px-4 py-1.5 bg-jungle/5 text-jungle border border-jungle/10 rounded-full text-[11px] font-black uppercase">
-                                <ArrowUpRight size={14} /> +{simulatedAtx - 686} pts
-                            </div>
-                            <p className="text-[10px] text-gray-300 font-bold mt-4 uppercase tracking-[0.1em]">Current Score: 686</p>
+                            <p className="text-xs font-bold text-gray-400 mt-auto">Current Score: {data.atxScore}</p>
                         </Card>
 
-                        <Card className="flex flex-col items-center justify-center py-10 relative overflow-hidden text-center group">
-                            <div className="absolute top-0 right-0 p-4 text-tropicalTeal/5 group-hover:scale-110 transition-transform duration-700">
-                                <Target size={140} />
+                        <Card className="p-8 border-gray-100 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                            <div className="absolute right-6 top-6 text-gray-200">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 22L4 18V7L12 2L20 7V18L12 22Z" fill="#e4ebdd" />
+                                    <path d="M16 9L10 15L7 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
                             </div>
-                            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">Placement Probability</p>
-                            <div className="flex items-baseline gap-1">
-                                <motion.span
-                                    className="text-6xl font-black text-gray-900 tracking-tighter"
-                                    key={probability}
-                                    initial={{ y: -20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                >
-                                    {probability}
-                                </motion.span>
-                                <span className="text-3xl font-black text-gray-900">%</span>
+                            <h3 className="text-xs font-black text-[#4a7c59]/70 uppercase tracking-widest mb-4">Placement Probability</h3>
+                            <div className="flex items-baseline justify-center gap-1 mb-3">
+                                <span className="text-6xl font-black text-[#4a7c59] leading-none">{probability}</span>
+                                <span className="text-xl font-bold text-[#4a7c59]">%</span>
                             </div>
-                            <div className="mt-6 flex items-center gap-2 px-4 py-1.5 bg-tropicalTeal/5 text-tropicalTeal border border-tropicalTeal/10 rounded-full text-[11px] font-black uppercase">
-                                <Zap size={14} fill="currentColor" /> High Readiness
+                            <div className="inline-flex items-center gap-1 bg-[#f0f7f4] text-[#4a7c59] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-3">
+                                <Zap size={12} /> High Readiness
                             </div>
-                            <p className="text-[10px] text-gray-300 font-bold mt-4 uppercase tracking-[0.1em]">Base Probability: 44%</p>
+                            <p className="text-xs font-bold text-gray-400 mt-auto">Base Probability: {baseProbability}%</p>
                         </Card>
                     </div>
 
                     {/* Chart Card */}
-                    <Card className="p-10">
-                        <div className="flex items-center justify-between mb-12">
+                    <Card className="p-6 md:p-8 border-none bg-gradient-to-br from-[#161b22] to-[#0d1117] text-white shadow-xl flex flex-col h-[500px] relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-[#4a7c59]/10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"></div>
+                        <div className="flex justify-between items-start mb-6 relative z-10">
                             <div>
-                                <h3 className="text-xl font-black text-gray-900 leading-none">Probability Growth Forecast</h3>
-                                <p className="text-xs text-gray-400 font-medium mt-2">Impact of simulated changes on monthly placement odds</p>
+                                <h3 className="text-lg font-black text-white mb-1">Probability Growth Forecast</h3>
+                                <p className="text-xs font-bold text-gray-400">Impact of simulated changes on monthly placement odds</p>
                             </div>
-                            <div className="flex items-center gap-6">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-gray-200"></div>
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Current Path</span>
+                            <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest bg-black/40 px-3 py-1.5 rounded-full border border-white/5">
+                                <div className="flex items-center gap-1.5 text-gray-400">
+                                    <div className="w-2 h-2 rounded-full bg-gray-500" /> Current Path
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-tropicalTeal"></div>
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Simulated Path</span>
+                                <div className="flex items-center gap-1.5 text-[#5fb896]">
+                                    <div className="w-2 h-2 rounded-full bg-[#5fb896]" /> Simulated Path
                                 </div>
                             </div>
                         </div>
 
-                        <div className="h-[340px] w-full">
+                        <div className="flex-1 w-full min-h-0 relative">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                <AreaChart data={chartData} margin={{ top: 20, right: 0, left: 0, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="colorSimulated" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#006d77" stopOpacity={0.2} />
-                                            <stop offset="95%" stopColor="#006d77" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#5fb896" stopOpacity={0.15} />
+                                            <stop offset="95%" stopColor="#5fb896" stopOpacity={0} />
+                                        </linearGradient>
+                                        <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#4a5568" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#4a5568" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#2d3748" />
                                     <XAxis
                                         dataKey="name"
-                                        axisLine={false}
+                                        axisLine={{ stroke: '#2d3748' }}
                                         tickLine={false}
-                                        tick={{ fontSize: 9, fontWeight: 900, fill: '#9ca3af', letterSpacing: '1px' }}
-                                        dy={20}
+                                        tick={{ fill: '#9ca3af', fontSize: 9, fontWeight: 900 }}
+                                        dy={10}
                                     />
                                     <YAxis hide domain={[0, 100]} />
                                     <Tooltip
-                                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 40px -4px rgba(0,0,0,0.1)' }}
-                                        itemStyle={{ fontSize: '11px', fontWeight: 900, textTransform: 'uppercase' }}
+                                        content={({ active, payload }) => {
+                                            if (active && payload && payload.length) {
+                                                return (
+                                                    <div className="bg-black/90 border border-white/10 p-4 rounded-2xl shadow-xl text-xs backdrop-blur-md">
+                                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">{payload[0].payload.name}</p>
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center justify-between gap-4">
+                                                                <span className="font-bold text-gray-400">Simulated</span>
+                                                                <span className="font-black text-[#5fb896]">{payload[0].payload.simulated}%</span>
+                                                            </div>
+                                                            <div className="flex items-center justify-between gap-4">
+                                                                <span className="font-bold text-gray-500">Current</span>
+                                                                <span className="font-black text-gray-300">{payload[0].payload.current}%</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        }}
                                     />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="current"
-                                        stroke="#e5e7eb"
-                                        strokeWidth={4}
-                                        fill="transparent"
-                                        animationDuration={1500}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="simulated"
-                                        stroke="#006d77"
-                                        strokeWidth={6}
-                                        fillOpacity={1}
-                                        fill="url(#colorSimulated)"
-                                        animationDuration={1500}
-                                    />
+                                    <Area type="monotone" dataKey="simulated" stroke="#5fb896" fill="url(#colorSimulated)" strokeWidth={4} isAnimationActive={true} />
+                                    <Area type="monotone" dataKey="current" stroke="#718096" fill="url(#colorCurrent)" strokeWidth={3} isAnimationActive={false} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
 
-                        <div className="mt-12 pt-8 border-t border-gray-50 flex items-center justify-between">
-                            <div className="flex gap-12">
+                        <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-6 relative z-10">
+                            <div className="flex gap-8">
                                 <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 text-center">Dream Companies</p>
-                                    <p className="text-md font-black text-jungle text-center">Unlocked ({Math.floor(probability / 10)})</p>
+                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Dream Companies</p>
+                                    <p className="text-sm font-black text-white">Unlocked ({Math.floor(probability / 15)})</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 text-center">Salary Projection</p>
-                                    <p className="text-md font-black text-gray-900 text-center">{Math.floor(probability * 0.15 + 8)}-{Math.floor(probability * 0.2 + 12)} LPA</p>
+                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Salary Projection</p>
+                                    <p className="text-sm font-black text-[#5fb896]">
+                                        {probability > 80 ? "18-24 LPA" : (probability > 60 ? "10-15 LPA" : "6-9 LPA")}
+                                    </p>
                                 </div>
                             </div>
-
-                            <Button className="h-12 px-8 bg-jungle hover:bg-jungle/90 text-white rounded-xl gap-2 font-black text-sm shadow-xl shadow-jungle/20">
-                                <Save size={18} />
-                                Save Strategy
+                            <Button className="bg-[#4a7c59]/20 border border-[#4a7c59]/50 hover:bg-[#4a7c59] text-white font-black rounded-xl px-6 h-11 gap-2 shadow-sm uppercase tracking-widest text-[11px] transition-colors">
+                                <Save size={14} /> Save Strategy
                             </Button>
                         </div>
                     </Card>
+
                 </div>
             </div>
+
+            
         </div>
     );
 }

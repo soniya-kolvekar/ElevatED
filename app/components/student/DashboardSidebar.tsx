@@ -17,7 +17,8 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const menuItems = [
-    { name: "Overview", icon: LayoutDashboard, href: "/student/dashboard" },
+    { name: "Platform Overview", icon: LayoutDashboard, href: "/student/dashboard" },
+    { name: "Student Dashboard", icon: BarChart3, href: "/student/dashboard/insights" },
     { name: "ATX Score", icon: Target, href: "/student/dashboard/atx" },
     { name: "Match Opportunities", icon: Briefcase, href: "/student/dashboard/matches" },
     { name: "Skill Gap Analysis", icon: BarChart3, href: "/student/dashboard/skills" },
@@ -43,7 +44,7 @@ export function DashboardSidebar() {
                     <div className="w-8 h-8 bg-jungle rounded-lg flex items-center justify-center text-white font-bold text-lg">
                         E
                     </div>
-                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-jungle to-tropicalTeal">
+                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-jungle to-emerald-600">
                         ElevatED
                     </span>
                 </Link>
@@ -51,7 +52,7 @@ export function DashboardSidebar() {
 
             <div className="px-6 mb-8">
                 <div className="flex items-center gap-3 p-2 rounded-xl bg-gray-50 border border-gray-100">
-                    <div className="w-10 h-10 rounded-full bg-tropicalTeal/10 flex items-center justify-center text-tropicalTeal font-bold">
+                    <div className="w-10 h-10 rounded-full bg-jungle/10 flex items-center justify-center text-jungle font-bold">
                         {user?.name?.charAt(0) || "S"}
                     </div>
                     <div className="overflow-hidden">
@@ -97,9 +98,9 @@ export function DashboardSidebar() {
                 </button>
 
                 <div className="mt-4">
-                    <button className="w-full py-3 bg-jungle text-white rounded-xl text-sm font-bold shadow-soft hover:bg-jungle/90 transition-all">
+                    <Link href="/student/dashboard/profile" className="w-full py-3 bg-jungle text-white rounded-xl text-sm font-bold shadow-soft hover:bg-jungle/90 transition-all flex items-center justify-center">
                         View Public Profile
-                    </button>
+                    </Link>
                 </div>
             </div>
         </aside>

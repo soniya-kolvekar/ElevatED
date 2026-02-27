@@ -9,7 +9,7 @@ import * as motion from "framer-motion/client";
 
 export default function LandingPage() {
     return (
-        <div className="min-h-screen bg-eggshell font-sans text-gray-900 overflow-x-hidden selection:bg-jungle selection:text-white">
+        <div className="min-h-screen bg-[#f8f6f0] font-sans text-gray-900 overflow-x-hidden selection:bg-jungle selection:text-white">
 
             {/* Header / Navbar */}
             <header className="fixed top-0 z-50 w-full backdrop-blur-md bg-[#faf3dd]/80 border-b border-gray-200 transition-all duration-300">
@@ -252,7 +252,7 @@ export default function LandingPage() {
             </section>
 
             {/* The Solution */}
-            <section id="intelligence" className="py-24 px-8 bg-eggshell">
+            <section id="intelligence" className="py-24 px-8 bg-[#f8f6f0]">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -428,7 +428,7 @@ export default function LandingPage() {
             </section>
 
             {/* Final CTA Box */}
-            <section className="bg-eggshell py-24 px-8">
+            <section className="bg-[#f8f6f0] py-24 px-8">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 30 }}
                     whileInView={{ opacity: 1, scale: 1, y: 0 }}
