@@ -22,7 +22,7 @@ export default function LandingPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-eggshell font-sans text-gray-900 pb-12">
+        <div className="min-h-screen bg-[#f8f6f0] font-sans text-gray-900 pb-12">
             {/* Top Navigation Bar mimicking the Simulator frame */}
             <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
                 <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
@@ -68,7 +68,7 @@ export default function LandingPage() {
                             <Bell size={20} />
                             <span className="absolute 0 right-0 w-2 h-2 bg-red-400 rounded-full border border-white"></span>
                         </button>
-                        <div className="w-8 h-8 rounded-full bg-eggshell border border-jungle/20 flex items-center justify-center text-jungle overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-[#f8f6f0] border border-jungle/20 flex items-center justify-center text-jungle overflow-hidden">
                             <User size={16} />
                         </div>
 
@@ -114,7 +114,7 @@ export default function LandingPage() {
                             <div className="mb-8">
                                 <div className="flex justify-between items-end mb-3">
                                     <label className="text-sm font-bold text-gray-700">Target CGPA Improvement</label>
-                                    <span className="text-sm font-bold text-jungle bg-eggshell px-2 py-1 rounded">8.8 / 10</span>
+                                    <span className="text-sm font-bold text-jungle bg-[#f8f6f0] px-2 py-1 rounded">8.8 / 10</span>
                                 </div>
                                 <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                                     <div className="h-full bg-tropicalTeal rounded-full" style={{ width: '88%' }}></div>
@@ -159,7 +159,7 @@ export default function LandingPage() {
                             <div className="mb-auto">
                                 <div className="flex justify-between items-end mb-3">
                                     <label className="text-sm font-bold text-gray-700">Mock Interview Score</label>
-                                    <span className="text-sm font-bold text-jungle bg-eggshell px-2 py-1 rounded">80%</span>
+                                    <span className="text-sm font-bold text-jungle bg-[#f8f6f0] px-2 py-1 rounded">80%</span>
                                 </div>
                                 <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                                     <div className="h-full bg-tropicalTeal rounded-full opacity-60" style={{ width: '80%' }}></div>
@@ -167,7 +167,7 @@ export default function LandingPage() {
                             </div>
 
                             {/* AI Recommendation Box */}
-                            <div className="mt-8 bg-eggshell border border-jungle/20 rounded-xl p-4">
+                            <div className="mt-8 bg-[#f8f6f0] border border-jungle/20 rounded-xl p-4">
                                 <h4 className="text-xs font-extrabold text-jungle flex items-center gap-1 mb-2 uppercase tracking-wide">
                                     <Sparkles size={14} className="fill-jungle text-jungle" /> AI Recommendation
                                 </h4>
@@ -207,7 +207,7 @@ export default function LandingPage() {
                                 <div className="flex justify-center mb-2">
                                     <span className="text-6xl font-black text-jungle tracking-tighter">92<span className="text-3xl">%</span></span>
                                 </div>
-                                <div className="inline-flex items-center gap-1 font-bold text-jungle bg-eggshell px-3 py-1 rounded-full text-sm mb-4">
+                                <div className="inline-flex items-center gap-1 font-bold text-jungle bg-[#f8f6f0] px-3 py-1 rounded-full text-sm mb-4">
                                     <CheckCircle2 size={14} className="fill-jungle text-white" /> High Readiness
                                 </div>
                                 <p className="text-xs font-semibold text-gray-400">Base Probability: 44%</p>

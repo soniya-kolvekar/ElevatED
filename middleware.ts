@@ -13,6 +13,8 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
+
+
     // Get the role from our simple cookie set during login
     const authRole = request.cookies.get('auth-role')?.value;
 

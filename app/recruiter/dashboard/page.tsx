@@ -39,7 +39,7 @@ export default function RecruiterDashboard() {
     if (!user) return null;
 
     return (
-        <div className="min-h-screen bg-eggshell text-gray-800 pb-24">
+        <div className="min-h-screen bg-[#f8f6f0] text-gray-800 pb-24">
             {/* Header */}
             <header className="bg-white sticky top-0 z-40 border-b border-jungle/10 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
@@ -72,13 +72,13 @@ export default function RecruiterDashboard() {
                 <div className="flex gap-4 mb-8">
                     <button
                         onClick={() => setActiveTab('candidates')}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'candidates' ? 'bg-jungle text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-eggshell'}`}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'candidates' ? 'bg-jungle text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-[#f8f6f0]'}`}
                     >
                         <Users size={20} /> Ranked Candidates
                     </button>
                     <button
                         onClick={() => setActiveTab('post-job')}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'post-job' ? 'bg-jungle text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-eggshell'}`}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'post-job' ? 'bg-jungle text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-[#f8f6f0]'}`}
                     >
                         <PlusCircle size={20} /> Post New Job
                     </button>
@@ -140,7 +140,7 @@ export default function RecruiterDashboard() {
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
                                         {candidates.map((cand) => (
-                                            <tr key={cand.id} className="hover:bg-eggshell/40 transition-colors">
+                                            <tr key={cand.id} className="hover:bg-[#f8f6f0]/40 transition-colors">
                                                 <td className="py-4 px-6 font-medium text-gray-900">{cand.name}</td>
                                                 <td className="py-4 px-6">
                                                     <div className="flex items-center gap-2">

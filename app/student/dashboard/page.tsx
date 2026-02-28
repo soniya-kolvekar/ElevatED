@@ -1,297 +1,296 @@
 "use client";
 
 import { useAuthStore } from "@/store/useAuthStore";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { ResumeUpload } from "@/components/student/ResumeUpload";
 import { motion } from "framer-motion";
 import {
-    PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
-    BarChart, Bar, XAxis, YAxis, CartesianGrid,
-    Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-    LineChart, Line
-} from 'recharts';
-import { Target, Trophy, TrendingUp, Briefcase, CheckCircle } from "lucide-react";
+    Eye,
+    Database,
+    Network,
+    Target,
+    Zap,
+    Briefcase,
+    TrendingUp,
+    ShieldCheck,
+    ArrowUpRight,
+    CheckCircle2,
+    Code
+} from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { getStudentDashboardData } from "@/lib/student-data";
 
-export default function StudentDashboard() {
-    const { user, logout } = useAuthStore();
 
-    const handleLogout = () => {
-        document.cookie = "auth-role=; path=/; max-age=0";
-        logout();
-        window.location.href = "/";
-    };
+const readinessData = [
+    { month: "MONTH 1", value: 45, target: 50 },
+    { month: "MONTH 2", value: 55, target: 60 },
+    { month: "MONTH 3", value: 50, target: 65 },
+    { month: "MONTH 4", value: 65, target: 75 },
+    { month: "MONTH 5", value: 78, target: 82 },
+    { month: "TARGET", value: 82, target: 95 },
+];
 
-    if (!user) {
-        return (
-            <div className="min-h-screen bg-eggshell p-8 flex items-center justify-center">
-                <div className="animate-pulse flex flex-col items-center">
-                    <div className="w-12 h-12 bg-jungle/20 rounded-xl mb-4"></div>
-                    <div className="h-4 w-32 bg-gray-200 rounded"></div>
-                </div>
-            </div>
-        );
-    }
-
-    const hasResume = !!user.resumeUrl;
-
-    // Base ATX Mock Data 
-    const atxScore = user.atxScore || 0;
-    const atxBreakdown = [
-        { name: 'Technical', value: 35 },
-        { name: 'DSA', value: 20 },
-        { name: 'Projects', value: 20 },
-        { name: 'Academics', value: 15 },
-        { name: 'Experience', value: 10 },
-    ];
-    const COLORS = ['#4a7c59', '#528a7e', '#006d77', '#83c5be', '#edf6f9'];
-
-    const recommendedCompanies = [
-        { name: 'Google', match: 92 },
-        { name: 'Microsoft', match: 88 },
-        { name: 'Amazon', match: 82 },
-        { name: 'Meta', match: 78 },
-        { name: 'Netflix', match: 70 },
-    ];
-
-    const skillGaps = [
-        { subject: 'React', A: 90, fullMark: 100 },
-        { subject: 'Node.js', A: 70, fullMark: 100 },
-        { subject: 'System Design', A: 40, fullMark: 100 },
-        { subject: 'DSA', A: 85, fullMark: 100 },
-        { subject: 'DevOps', A: 30, fullMark: 100 },
-    ];
-
-    const readinessTimeline = [
-        { name: 'Jan', readiness: 40 },
-        { name: 'Feb', readiness: 55 },
-        { name: 'Mar', readiness: 62 },
-        { name: 'Apr', readiness: 80 },
-        { name: 'May', readiness: 88 },
-    ];
+export default function PlatformOverview() {
+    const { user } = useAuthStore();
+    const data = getStudentDashboardData(user);
 
     return (
-        <div className="min-h-screen bg-eggshell text-gray-800 pb-24">
-            {/* Header */}
-            <header className="bg-white sticky top-0 z-40 border-b border-jungle/10 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-jungle text-white flex items-center justify-center font-bold text-xl shadow-soft">
-                            E
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-gray-900 leading-tight">Student Hub</h1>
-                            <p className="text-xs text-mutedTeal font-semibold">ElevatED Placement Engine</p>
-                        </div>
+        <div className="space-y-12 pb-20 max-w-7xl mx-auto">
+            {/* Header Section */}
+            <div className="space-y-4">
+                <span className="px-3 py-1 bg-jungle/5 text-jungle text-[10px] font-black uppercase tracking-widest rounded-full border border-jungle/10">
+                    Deep Dive
+                </span>
+                <h1 className="text-5xl font-black text-gray-900 leading-tight">
+                    Advanced Placement <br /> Intelligence
+                </h1>
+                <p className="text-lg text-gray-500 max-w-2xl font-medium">
+                    Explore the engine driving next-gen campus placements. From AI-driven resume parsing to predictive readiness modeling.
+                </p>
+            </div>
+
+            {/* AI Resume Intelligence Section */}
+            <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-jungle/10 flex items-center justify-center text-jungle">
+                        <Zap size={18} />
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="hidden sm:block text-right">
-                            <div className="text-sm font-semibold">{user.name}</div>
-                            <div className="text-xs text-gray-500 capitalize">{user.role} • Lvl {user.level || 1}</div>
+                    <h2 className="text-xl font-bold text-gray-900">AI Resume Intelligence</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[
+                        {
+                            title: "Visual Parsing",
+                            description: "Proprietary OCR and spatial analysis to convert complex, multi-column visual resumes into structured JSON data without losing context.",
+                            icon: Eye
+                        },
+                        {
+                            title: "Entity Extraction",
+                            description: "Identifies key experience, education milestones, and extracurricular achievements using Named Entity Recognition (NER).",
+                            icon: Database
+                        },
+                        {
+                            title: "Skill Mapping",
+                            description: "Maps candidate skills to the ATX standard industry taxonomy, normalizing varied terminology across different engineering domains.",
+                            icon: Network
+                        }
+                    ].map((feature, idx) => (
+                        <Card key={idx} className="p-8 border-gray-100 hover:border-jungle/20 transition-all hover:shadow-xl group">
+                            <div className="w-full h-40 bg-gray-50 rounded-2xl mb-6 flex items-center justify-center group-hover:bg-jungle/5 transition-colors">
+                                <feature.icon size={48} className="text-gray-300 group-hover:text-jungle transition-all duration-500 group-hover:scale-110" />
+                            </div>
+                            <h3 className="text-lg font-black text-gray-900 mb-3">{feature.title}</h3>
+                            <p className="text-sm text-gray-500 leading-relaxed font-medium">
+                                {feature.description}
+                            </p>
+                        </Card>
+                    ))}
+                </div>
+            </div>
+
+            {/* ATX Score Engine Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="lg:col-span-7 space-y-8">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-jungle/10 flex items-center justify-center text-jungle">
+                            <Target size={18} />
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-tropicalTeal text-white flex items-center justify-center font-bold shadow-soft">
-                            {user.name?.charAt(0) || "S"}
-                        </div>
-                        <Button variant="ghost" size="sm" onClick={handleLogout} className="text-red-500 hover:bg-red-50 hover:text-red-600">
-                            Logout
-                        </Button>
+                        <h2 className="text-xl font-bold text-gray-900">ATX Score Engine</h2>
+                    </div>
+
+                    <p className="text-gray-500 font-medium leading-relaxed">
+                        The Advanced Talent Index (ATX) uses a multi-weighted algorithm to determine placement viability. Our engine calculates scores based on five core pillars.
+                    </p>
+
+                    <div className="space-y-6 max-w-xl">
+                        {[
+                            { label: "Technical Proficiency", weight: "40%", score: 85, color: "bg-jungle" },
+                            { label: "Academic Consistency", weight: "25%", score: 72, color: "bg-jungle/60" },
+                            { label: "Communication & Soft Skills", weight: "15%", score: 90, color: "bg-emerald-500/40" },
+                            { label: "Project Depth", weight: "20%", score: 65, color: "bg-gray-200" }
+                        ].map((metric, idx) => (
+                            <div key={idx} className="space-y-2">
+                                <div className="flex justify-between items-center text-xs font-black uppercase tracking-wider">
+                                    <span className="text-gray-900">{metric.label}</span>
+                                    <span className="text-gray-400">{metric.weight} Weightage</span>
+                                </div>
+                                <div className="h-6 w-full bg-gray-50 rounded-lg overflow-hidden border border-gray-100 p-1">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${metric.score}%` }}
+                                        className={`h-full rounded-md ${metric.color}`}
+                                    />
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
-            </header>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-6">
-
-                {/* Onboarding / Status Banner */}
-                {!hasResume && (
-                    <div className="grid lg:grid-cols-2 gap-8 mb-12">
-                        <div className="flex flex-col justify-center">
-                            <h2 className="text-3xl lg:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
-                                Welcome back, <br /><span className="text-jungle">{user.name?.split(' ')[0]}</span>.
-                            </h2>
-                            <p className="text-lg text-gray-600 mb-8 max-w-xl">
-                                To unlock your personalized ATX score, AI skill-gap analysis, and company match probability, upload your latest resume.
-                            </p>
-                            <div className="flex gap-4">
-                                <div className="flex items-center gap-2 text-sm text-jungle font-medium bg-jungle/10 px-4 py-2 rounded-full">
-                                    <CheckCircle className="w-4 h-4" /> Secure Cloud Parsing
+                <div className="lg:col-span-5 bg-jungle/5 rounded-[2rem] p-8 border border-jungle/10 space-y-6">
+                    <h3 className="text-xs font-black text-jungle uppercase tracking-[0.3em]">Score Tiers</h3>
+                    <div className="space-y-4">
+                        {[
+                            { tier: "Platinum Tier (850+)", desc: "Top 5% of candidates. Direct track to Tier-1 product firms.", bg: "bg-amber-50", text: "P" },
+                            { tier: "Gold Tier (700-849)", desc: "Strong foundation. Ideal for core engineering & fintech.", bg: "bg-emerald-50", text: "G" },
+                            { tier: "Silver Tier (500-699)", desc: "Skilled workforce. Ready for service-based scale-ups.", bg: "bg-gray-50", text: "S" }
+                        ].map((tier, idx) => (
+                            <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
+                                <div className={`w-12 h-12 rounded-xl ${tier.bg} flex items-center justify-center text-xl font-black text-gray-900/20`}>
+                                    {tier.text}
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-tropicalTeal font-medium bg-tropicalTeal/10 px-4 py-2 rounded-full">
-                                    <CheckCircle className="w-4 h-4" /> Instant ATX Setup
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <ResumeUpload />
-                        </div>
-                    </div>
-                )}
-
-                {hasResume && (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                        {/* Top Row - Key Metrics & Gamification */}
-                        <div className="grid md:grid-cols-3 gap-6">
-
-                            {/* ATX Score Donut */}
-                            <Card className="flex flex-col relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
-                                    <Target size={120} />
-                                </div>
-                                <h3 className="text-lg font-bold text-gray-900 mb-1 z-10 flex items-center gap-2">
-                                    <Target className="w-5 h-5 text-jungle" /> ATX Score
-                                </h3>
-                                <p className="text-sm text-gray-500 mb-4 z-10">Application Troubleshooting Index</p>
-
-                                <div className="h-48 w-full relative z-10">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={atxBreakdown}
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                paddingAngle={5}
-                                                dataKey="value"
-                                            >
-                                                {atxBreakdown.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip
-                                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px -2px rgba(0,0,0,0.1)' }}
-                                                itemStyle={{ color: '#1f2937', fontWeight: 600 }}
-                                            />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-4">
-                                        <span className="text-4xl font-black text-jungle">{atxScore}</span>
-                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">/ 100</span>
-                                    </div>
-                                </div>
-                            </Card>
-
-                            {/* XP & Level Status */}
-                            <Card className="flex flex-col relative overflow-hidden group justify-between">
-                                <div className="absolute bottom-0 right-0 p-4 opacity-5 transform translate-x-8 translate-y-8 group-hover:scale-110 transition-transform duration-500">
-                                    <Trophy size={160} />
-                                </div>
-
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-900 mb-1 z-10 flex items-center gap-2">
-                                        <Trophy className="w-5 h-5 text-amber-500" /> Career Level
-                                    </h3>
-                                    <p className="text-sm text-gray-500 mb-6 z-10">Accumulate XP by solving challenges</p>
-
-                                    <div className="flex items-end gap-2 mb-2">
-                                        <span className="text-5xl font-black text-gray-900 leading-none">{user.level || 1}</span>
-                                        <span className="text-sm font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-md mb-1">Elite Tier</span>
-                                    </div>
+                                    <h4 className="text-sm font-black text-gray-900">{tier.tier}</h4>
+                                    <p className="text-[10px] text-gray-400 font-bold">{tier.desc}</p>
                                 </div>
-
-                                <div className="z-10 mt-8">
-                                    <div className="flex justify-between text-sm mb-2 font-medium">
-                                        <span className="text-gray-600">XP Progress</span>
-                                        <span className="text-jungle">{(user.xp || 0)} / 1000</span>
-                                    </div>
-                                    <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                                        <motion.div
-                                            className="h-full bg-jungle rounded-full"
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${((user.xp || 0) / 1000) * 100}%` }}
-                                            transition={{ duration: 1.5, ease: "easeOut" }}
-                                        />
-                                    </div>
-                                    <p className="text-xs text-gray-400 mt-3">Next level unlocks Mock Interviews.</p>
-                                </div>
-                            </Card>
-
-                            {/* Recommended Companies Bar Chart */}
-                            <Card className="flex flex-col">
-                                <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                                    <Briefcase className="w-5 h-5 text-tropicalTeal" /> Top Matches
-                                </h3>
-                                <p className="text-sm text-gray-500 mb-4">Ranked by ATX and Skill overlap</p>
-                                <div className="h-48 w-full -ml-4">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={recommendedCompanies} layout="vertical" margin={{ top: 0, right: 20, left: 30, bottom: 0 }}>
-                                            <XAxis type="number" hide domain={[0, 100]} />
-                                            <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#4b5563', fontWeight: 500 }} />
-                                            <Tooltip cursor={{ fill: '#f3f4f6' }} contentStyle={{ borderRadius: '8px', border: 'none' }} />
-                                            <Bar dataKey="match" fill="#528a7e" radius={[0, 4, 4, 0]} barSize={16}>
-                                                {recommendedCompanies.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.match > 85 ? '#4a7c59' : '#83c5be'} />
-                                                ))}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </Card>
-                        </div>
-
-                        {/* Diagnostic Row */}
-                        <div className="grid md:grid-cols-2 gap-6">
-
-                            {/* Skill Gap Radar */}
-                            <Card className="flex flex-col items-center">
-                                <div className="w-full">
-                                    <h3 className="text-lg font-bold text-gray-900 mb-1">Competency Radar</h3>
-                                    <p className="text-sm text-gray-500 mb-2">Identified skill strengths and gaps from resume</p>
-                                </div>
-                                <div className="h-64 w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={skillGaps}>
-                                            <PolarGrid stroke="#e5e7eb" />
-                                            <PolarAngleAxis dataKey="subject" tick={{ fill: '#374151', fontSize: 12, fontWeight: 600 }} />
-                                            <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                                            <Radar name="Proficiency" dataKey="A" stroke="#006d77" fill="#006d77" fillOpacity={0.2} strokeWidth={2} />
-                                            <Tooltip />
-                                        </RadarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </Card>
-
-                            {/* Readiness Timeline */}
-                            <Card className="flex flex-col">
-                                <div className="w-full">
-                                    <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                                        <TrendingUp className="w-5 h-5 text-mutedTeal" /> Placement Readiness
-                                    </h3>
-                                    <p className="text-sm text-gray-500 mb-6">Probability trajectory over time</p>
-                                </div>
-                                <div className="h-60 w-full mt-auto">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={readinessTimeline} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} dy={10} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} domain={[0, 100]} />
-                                            <Tooltip
-                                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}
-                                                formatter={(value: any) => [`${value}%`, 'Readiness'] as any}
-                                            />
-                                            <Line type="monotone" dataKey="readiness" stroke="#4a7c59" strokeWidth={3} dot={{ r: 4, fill: '#4a7c59', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
-                                        </LineChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </Card>
-                        </div>
-
-                        {/* Simulated Actions */}
-                        <div className="bg-jungle text-white rounded-2xl p-8 shadow-xl flex flex-col md:flex-row gap-8 justify-between items-center relative overflow-hidden">
-                            <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-                            <div className="relative z-10 max-w-2xl">
-                                <h3 className="text-2xl font-bold mb-3">Want to improve your odds?</h3>
-                                <p className="text-eggshell/90 mb-0">
-                                    Use the Improvement Simulator to map out your shortest path to your dream company. See exactly how adding an internship or boosting DSA affects your ATX score.
-                                </p>
                             </div>
-                            <div className="relative z-10 whitespace-nowrap">
-                                <Button className="bg-white text-jungle hover:bg-eggshell shadow-lg px-8 py-4 text-lg">
-                                    Launch Simulator
-                                </Button>
-                            </div>
-                        </div>
-
+                        ))}
                     </div>
-                )}
-            </main>
+                </div>
+            </div>
+
+            {/* Smart Opportunity Matching Section */}
+            <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-jungle/10 flex items-center justify-center text-jungle">
+                        <Briefcase size={18} />
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-900">Smart Opportunity Matching</h2>
+                </div>
+
+                <Card className="overflow-hidden border-gray-100 p-0">
+                    <table className="w-full text-left">
+                        <thead className="bg-gray-50/50 border-b border-gray-100">
+                            <tr>
+                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Company</th>
+                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Role</th>
+                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Compatibility</th>
+                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {[
+                                { name: "NexaSystems", role: "Full Stack SDE", comp: "98%", status: "Invited", statusColor: "bg-blue-50 text-blue-600" },
+                                { name: "CloudPulse", role: "DevOps Engineer", comp: "92%", status: "Open", statusColor: "bg-gray-100 text-gray-500" },
+                                { name: "AuraData", role: "Data Scientist", comp: "76%", status: "Open", statusColor: "bg-gray-100 text-gray-500" }
+                            ].map((job, idx) => (
+                                <tr key={idx} className="hover:bg-gray-50/50 transition-colors group">
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-black text-gray-400 group-hover:bg-jungle group-hover:text-white transition-all">
+                                                {job.name[0]}
+                                            </div>
+                                            <span className="font-black text-gray-900">{job.name}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6 text-sm font-bold text-gray-500">{job.role}</td>
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-black text-jungle">{job.comp}</span>
+                                            <span className="px-2 py-0.5 bg-jungle/5 text-jungle text-[8px] font-black uppercase rounded">Best Fit</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${job.statusColor}`}>
+                                            {job.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-6 text-right">
+                                        <button className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-jungle transition-colors">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </Card>
+            </div>
+
+            {/* Readiness Predictor Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                <Card className="lg:col-span-8 p-10 border-gray-100">
+                    <div className="flex items-center justify-between mb-12">
+                        <div className="flex items-center gap-3">
+                            <TrendingUp className="text-jungle" size={20} />
+                            <h2 className="text-xl font-bold text-gray-900">Readiness Predictor</h2>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Predicted Probability</p>
+                            <span className="text-4xl font-black text-jungle">82%</span>
+                        </div>
+                    </div>
+
+                    <div className="h-64 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={readinessData}>
+                                <Line
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#4a7c59"
+                                    strokeWidth={4}
+                                    dot={false}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="target"
+                                    stroke="#C4D7CC"
+                                    strokeWidth={2}
+                                    strokeDasharray="5 5"
+                                    dot={false}
+                                />
+                                <XAxis
+                                    dataKey="month"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
+                                    dy={10}
+                                />
+                                <YAxis hide />
+                                <Tooltip />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <p className="mt-8 text-xs text-gray-400 italic font-medium leading-relaxed">
+                        Historical data suggests an 82% placement probability within 45 days based on your current ATX trajectory.
+                    </p>
+                </Card>
+
+                <div className="lg:col-span-4 bg-jungle rounded-[2rem] p-8 text-white flex flex-col justify-between">
+                    <div>
+                        <div className="flex items-center gap-3 mb-6">
+                            <ShieldCheck size={24} className="text-emerald-400" />
+                            <h3 className="text-xl font-black">Policy Engine</h3>
+                        </div>
+                        <p className="text-sm text-eggshell/60 leading-relaxed mb-8">
+                            The brain behind eligibility logic. Our Policy Engine ensures fair, rule-based matching that aligns with both university guidelines and corporate requirements.
+                        </p>
+                        <div className="space-y-4">
+                            {[
+                                "Dynamic Eligibility Checks",
+                                "Conflict Resolution Logic",
+                                "Fair-Share Distribution"
+                            ].map((item, idx) => (
+                                <div key={idx} className="flex items-center gap-3">
+                                    <CheckCircle2 size={16} className="text-emerald-400" />
+                                    <span className="text-xs font-bold text-white/90">{item}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mt-12 bg-black/20 rounded-2xl p-6 border border-white/5 space-y-4">
+                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Active Logic</span>
+                        <div className="font-mono text-[10px] text-emerald-400/80 leading-relaxed uppercase whitespace-pre-wrap">
+                            IF (ATX_SCORE {">"} 750) AND (BACKLOGS == 0)<br />
+                            ENABLE(PREMIUM_ROLES)<br />
+                            PRIORITY = DYNAMIC_RANK
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
         </div>
     );
 }
