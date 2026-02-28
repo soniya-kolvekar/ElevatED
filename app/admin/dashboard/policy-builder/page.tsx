@@ -8,14 +8,40 @@ export default function PolicyBuilder() {
     const [jobPolicy, setJobPolicy] = useState(true);
     const [atxGating, setAtxGating] = useState(false);
 
-    const branches = [
+    const [branches, setBranches] = useState([
         { name: "CSE", active: true },
         { name: "ECE", active: true },
         { name: "IT", active: true },
         { name: "Mechanical", active: false },
         { name: "Civil", active: false },
         { name: "Chemical", active: false },
-    ];
+    ]);
+
+    const toggleBranch = (name: string) => {
+        setBranches(branches.map(b => b.name === name ? { ...b, active: !b.active } : b));
+    };
+
+    // Dynamic Mock Calculations
+    const activeBranchCount = branches.filter(b => b.active).length;
+    const baseEligible = 2000;
+
+    // As CGPA threshold goes up, eligible students go down
+    const cgpaFactor = Math.max(0, 10 - cgpa) / 10;
+
+    // active branches increase the pool
+    const branchFactor = activeBranchCount / branches.length;
+
+    // Toggles restrict the pool
+    const jobPolicyPenalty = jobPolicy ? 0.85 : 1.0;
+    const atxGatingPenalty = atxGating ? 0.60 : 1.0;
+
+    const totalEligible = Math.round(baseEligible * cgpaFactor * branchFactor * jobPolicyPenalty * atxGatingPenalty);
+    const excludedBase = 2500 - totalEligible;
+
+    // Sub-calculations for branches based on the total eligible
+    const cseCount = Math.round(totalEligible * 0.45);
+    const eceCount = Math.round(totalEligible * 0.35);
+    const itCount = Math.round(totalEligible * 0.20);
 
     return (
         <div className="w-full pb-10 space-y-6">
@@ -96,6 +122,7 @@ export default function PolicyBuilder() {
                                     {branches.map((branch) => (
                                         <button
                                             key={branch.name}
+                                            onClick={() => toggleBranch(branch.name)}
                                             className={`px-4 py-1.5 rounded-full text-[12px] font-bold transition-colors ${branch.active
                                                 ? 'bg-[#457c5f] text-white shadow-sm shadow-[#457c5f]/20'
                                                 : 'bg-[#f4f7f5] text-gray-500 hover:bg-gray-200'
@@ -197,10 +224,10 @@ export default function PolicyBuilder() {
 
                         <div className="text-center mb-10">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Total Eligible Students</p>
-                            <h4 className="text-[54px] font-black text-[#0a192f] leading-none tracking-tighter mb-2">1,248</h4>
-                            <p className="text-[12px] font-bold text-[#1eb463] flex items-center justify-center gap-1">
+                            <h4 className="text-[54px] font-black text-[#0a192f] leading-none tracking-tighter mb-2">{totalEligible.toLocaleString()}</h4>
+                            <p className={`text-[12px] font-bold flex items-center justify-center gap-1 ${totalEligible > 1000 ? 'text-[#1eb463]' : 'text-red-500'}`}>
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                12% vs last policy
+                                {totalEligible > 1000 ? '+12% vs last policy' : '-8% strict filter'}
                             </p>
                         </div>
 
@@ -209,28 +236,28 @@ export default function PolicyBuilder() {
                             <div>
                                 <div className="flex justify-between text-[11px] font-bold text-gray-600 mb-1.5">
                                     <span>CSE</span>
-                                    <span>540 Students</span>
+                                    <span>{cseCount} Students</span>
                                 </div>
                                 <div className="w-full h-2.5 bg-[#f4f7f5] rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#457c5f] w-[80%] rounded-full"></div>
+                                    <div className="h-full bg-[#457c5f] w-[80%] rounded-full transition-all duration-300"></div>
                                 </div>
                             </div>
                             <div>
                                 <div className="flex justify-between text-[11px] font-bold text-gray-600 mb-1.5">
                                     <span>ECE</span>
-                                    <span>420 Students</span>
+                                    <span>{eceCount} Students</span>
                                 </div>
                                 <div className="w-full h-2.5 bg-[#f4f7f5] rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#8b5cf6] w-[65%] rounded-full"></div>
+                                    <div className="h-full bg-[#8b5cf6] w-[65%] rounded-full transition-all duration-300"></div>
                                 </div>
                             </div>
                             <div>
                                 <div className="flex justify-between text-[11px] font-bold text-gray-600 mb-1.5">
                                     <span>IT</span>
-                                    <span>288 Students</span>
+                                    <span>{itCount} Students</span>
                                 </div>
                                 <div className="w-full h-2.5 bg-[#f4f7f5] rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#f59e0b] w-[45%] rounded-full"></div>
+                                    <div className="h-full bg-[#f59e0b] w-[45%] rounded-full transition-all duration-300"></div>
                                 </div>
                             </div>
                         </div>
@@ -239,12 +266,12 @@ export default function PolicyBuilder() {
                         <div className="grid grid-cols-2 gap-3 mb-6">
                             <div className="bg-[#f8fbfa] rounded-xl p-4 border border-[#f0f3f1]">
                                 <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Excluded</div>
-                                <div className="text-[22px] font-black text-red-500 mb-1">456</div>
+                                <div className="text-[22px] font-black text-red-500 mb-1">{excludedBase}</div>
                                 <div className="text-[10px] font-medium text-gray-500">Low CGPA/Backlogs</div>
                             </div>
                             <div className="bg-[#f8fbfa] rounded-xl p-4 border border-[#f0f3f1]">
                                 <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">ATX Peak</div>
-                                <div className="text-[22px] font-black text-[#8b5cf6] mb-1">842</div>
+                                <div className="text-[22px] font-black text-[#8b5cf6] mb-1">{Math.round(totalEligible * 0.15)}</div>
                                 <div className="text-[10px] font-medium text-gray-500">Top Tier Talent</div>
                             </div>
                         </div>

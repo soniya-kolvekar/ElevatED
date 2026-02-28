@@ -11,6 +11,7 @@ import {
     Cog8ToothIcon,
     PresentationChartLineIcon
 } from "@heroicons/react/24/outline";
+import { DashboardFooter } from "@/components/student/DashboardFooter";
 
 export default function AdminDashboardLayout({
     children,
@@ -30,7 +31,7 @@ export default function AdminDashboardLayout({
     ];
 
     return (
-        <div className="flex h-screen bg-[#f4f7f5] font-sans text-gray-900 overflow-hidden">
+        <div className="flex h-screen bg-[#f8f6f0] font-sans text-gray-900 overflow-hidden">
             {/* Left Sidebar */}
             <aside className="w-[260px] bg-[#f8fbfa] border-r border-[#e9f0ec] flex flex-col shrink-0 px-6 py-8">
                 {/* Logo Area */}
@@ -65,21 +66,24 @@ export default function AdminDashboardLayout({
                 </nav>
 
                 {/* Bottom User Profile */}
-                <div className="mt-auto pt-6 border-t border-[#e9f0ec] flex items-center gap-3 pl-2">
-                    <div className="w-10 h-10 rounded-full bg-[#dfbca1] text-[#7a5c43] flex items-center justify-center font-bold text-[14px]">
+                <Link href="/admin/dashboard/profile" className="mt-auto pt-6 border-t border-[#e9f0ec] flex items-center gap-3 pl-2 group hover:opacity-80 transition-opacity">
+                    <div className="w-10 h-10 rounded-full bg-[#dfbca1] text-[#7a5c43] flex items-center justify-center font-bold text-[14px] group-hover:scale-105 transition-transform">
                         AV
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[13px] font-extrabold text-[#0a192f]">Dr. Aris V.</span>
+                        <span className="text-[13px] font-extrabold text-[#0a192f] group-hover:text-[#457c5f] transition-colors">Dr. Aris V.</span>
                         <span className="text-[11px] font-medium text-gray-400 leading-tight">Dean of Placements</span>
                     </div>
-                </div>
+                </Link>
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 overflow-y-auto w-full min-h-0 bg-[#f4f7f5] p-6 lg:p-10">
-                <div className="max-w-[1200px] mx-auto">
+            <main className="flex-1 overflow-y-auto w-full min-h-0 bg-[#f8f6f0] p-6 lg:p-10 flex flex-col">
+                <div className="max-w-[1200px] mx-auto w-full flex-grow">
                     {children}
+                </div>
+                <div className="mt-12">
+                    <DashboardFooter />
                 </div>
             </main>
         </div>
