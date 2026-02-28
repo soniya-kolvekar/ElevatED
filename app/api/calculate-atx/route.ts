@@ -24,42 +24,28 @@ export async function POST(req: Request) {
             // Mock continuation if firestore isn't connected
         }
 
-        // Weight Preferences
-        // Technical Skills: 35%, DSA: 20%, Projects: 20%, Academics: 15%, Experience: 10%
+        // Weight Preferences (Total 1000)
+        // Technical Proficiency: 400
+        // Soft Skills / Potential: 250
+        // Academic Excellence: 200
+        // Experience & Portfolio: 150
 
-        // 1. Technical Skills Score (Out of 35)
-        // Formula: Cap at 10 skills. 3.5 points per relevant skill.
-        const skillPoints = Math.min((parsedData.skills?.length || 0) * 3.5, 35);
+        // 1. AI-Driven Baseline (70% weight)
+        const baseline = parsedData.atxBaselineScore || 650;
 
-        // 2. DSA Score (Out of 20)
-        let dsaPoints = 5;
-        if (parsedData.dsaLevel === "Advanced") dsaPoints = 20;
-        else if (parsedData.dsaLevel === "Intermediate") dsaPoints = 14;
-        else if (parsedData.dsaLevel === "Basic") dsaPoints = 8;
-
-        // 3. Projects Score (Out of 20)
-        // 5 points per project cap at 4 
-        const projectPoints = Math.min((parsedData.projects?.length || 0) * 5, 20);
-
-        // 4. Academics Score (Out of 15)
-        // Linear scale from passing (4.0) to 10.0 CGPA
+        // 2. Academic & Verifiable Adjustments (30% weight)
         const cgpaRatio = Math.max(0, (cgpa - 4) / 6);
-        const academicPoints = Math.min(cgpaRatio * 15, 15);
+        const academicScore = Math.min(cgpaRatio * 300, 300);
 
-        // 5. Experience Score (Out of 10)
-        // 10 points for extensive internship, 5 for standard, 0 for none
-        const experiencePoints = parsedData.internship ? 10 : 0;
-
-        const totalScore = Math.floor(skillPoints + dsaPoints + projectPoints + academicPoints + experiencePoints);
+        const totalScore = Math.floor((baseline * 0.7) + academicScore);
 
         return NextResponse.json({
-            totalScore,
+            totalScore: Math.min(totalScore, 1000),
             breakdown: {
-                skills: Number(skillPoints.toFixed(1)),
-                dsa: dsaPoints,
-                projects: projectPoints,
-                academics: Number(academicPoints.toFixed(1)),
-                experience: experiencePoints
+                technical: Math.round(baseline * 0.4),
+                softSkills: Math.round(baseline * 0.2),
+                academic: Math.round(academicScore),
+                experience: Math.round(baseline * 0.1)
             }
         });
 

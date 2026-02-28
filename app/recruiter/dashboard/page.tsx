@@ -2,248 +2,287 @@
 
 import { useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
 import {
-    Users, Briefcase, PlusCircle, CheckCircle, ShieldAlert
+    Users,
+    Filter,
+    Download,
+    ArrowUpRight,
+    ArrowDownRight,
+    TrendingUp,
+    MoreHorizontal,
+    Eye
 } from "lucide-react";
-import { BarChart as ReBarChart, Bar as ReBar, XAxis as ReXAxis, YAxis as ReYAxis, Tooltip as ReTooltip, ResponsiveContainer as ReResponsiveContainer, Cell as ReCell } from 'recharts';
+import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 export default function RecruiterDashboard() {
-    const { user, logout } = useAuthStore();
-    const [activeTab, setActiveTab] = useState<"candidates" | "post-job">("candidates");
+    const { user } = useAuthStore();
 
-    const handleLogout = () => {
-        document.cookie = "auth-role=; path=/; max-age=0";
-        logout();
-        window.location.href = "/";
-    };
-
-    // Mock Data
+    // Mock Data based on the image
     const candidates = [
-        { id: '1', name: 'Alice Smith', atx: 82, match: 94, policy: true, skills: ['React', 'Node.js', 'AWS'], status: 'pending' },
-        { id: '2', name: 'Bob Johnson', atx: 75, match: 88, policy: true, skills: ['Python', 'Django', 'SQL'], status: 'shortlisted' },
-        { id: '3', name: 'Charlie Davis', atx: 90, match: 85, policy: false, skills: ['C++', 'System Design', 'GCP'], status: 'pending', policyReason: 'CGPA Threshold' },
-        { id: '4', name: 'Diana King', atx: 68, match: 72, policy: true, skills: ['Java', 'Spring', 'Docker'], status: 'pending' },
+        {
+            id: '1',
+            rank: '01',
+            name: 'Arjun Rao',
+            atx: 942,
+            tags: ['Full-Stack Expert', 'ML Enthusiast', '9.8 GPA'],
+            status: 'HIGHLY QUALIFIED',
+            role: 'Computer Science, IIT-B',
+            avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&h=100&fit=crop'
+        },
+        {
+            id: '6',
+            rank: '02',
+            name: 'Aditi Verma',
+            atx: 932,
+            tags: ['Backend Expert', 'Rust Enthusiast', '9.5 GPA'],
+            status: 'HIGHLY QUALIFIED',
+            role: 'Software Engineering, IIT-D',
+            avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop'
+        },
+        {
+            id: '4',
+            rank: '03',
+            name: 'Priya Sharma',
+            atx: 915,
+            tags: ['React Native', 'UI/UX Expert'],
+            status: 'SHORTLISTED',
+            role: 'Information Tech, BITS',
+            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop'
+        },
+        {
+            id: '2',
+            rank: '04',
+            name: 'Ananya Iyer',
+            atx: 891,
+            tags: ['Python Specialist', 'Strong Logic'],
+            status: 'SHORTLISTED',
+            role: 'Data Engineering, NIT',
+            avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop'
+        },
+        {
+            id: '3',
+            rank: '05',
+            name: 'Rohan Dasgupta',
+            atx: 874,
+            tags: ['Cloud Native', 'Go Developer'],
+            status: 'UNDER REVIEW',
+            role: 'Software Systems, BITS',
+            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop'
+        },
     ];
-
-    const distributionData = [
-        { range: '90-100', count: 12 },
-        { range: '80-89', count: 35 },
-        { range: '70-79', count: 48 },
-        { range: '60-69', count: 15 },
-        { range: '<60', count: 4 },
-    ];
-
-    if (!user) return null;
 
     return (
-        <div className="min-h-screen bg-eggshell text-gray-800 pb-24">
-            {/* Header */}
-            <header className="bg-white sticky top-0 z-40 border-b border-jungle/10 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-jungle text-white flex items-center justify-center font-bold text-xl shadow-soft">
-                            E
-                        </div>
+        <div className="p-8 max-w-[1400px] mx-auto space-y-8 animate-in fade-in duration-700">
+            {/* Header Area */}
+            <div className="flex justify-between items-start">
+                <div>
+                    <h1 className="text-3xl font-black text-[#1a1a1a] tracking-tight">Candidate Dashboard</h1>
+                    <p className="text-gray-400 font-medium mt-1">Al-powered placement ranking with Advanced Talent Index (ATX)</p>
+                </div>
+                <div className="flex gap-3">
+                    <Button variant="outline" className="rounded-xl bg-white border-gray-100 text-gray-600 shadow-sm hover:bg-gray-50 flex items-center gap-2 px-5 font-bold">
+                        <Filter className="w-4 h-4" /> Filter
+                    </Button>
+                    <Button className="rounded-xl bg-[#528a7e] hover:bg-[#4a7c59] text-white shadow-soft flex items-center gap-2 px-5 font-bold transition-all">
+                        <Download className="w-4 h-4" /> Export Report
+                    </Button>
+                </div>
+            </div>
+
+            {/* Metrics Row */}
+            <div className="grid md:grid-cols-3 gap-6">
+                <Card className="p-6 border-none shadow-soft overflow-hidden relative group">
+                    <div className="flex justify-between items-start">
                         <div>
-                            <h1 className="text-xl font-bold text-gray-900 leading-tight">Recruiter Hub</h1>
-                            <p className="text-xs text-mutedTeal font-semibold">ElevatED Placement Engine</p>
+                            <p className="text-sm font-bold text-gray-500 mb-1">Total Applicants</p>
+                            <h3 className="text-4xl font-black text-[#1a1a1a]">1,284</h3>
+                        </div>
+                        <span className="bg-[#e8f5e9] text-[#2e7d32] text-xs font-black px-2 py-1 rounded-lg flex items-center gap-0.5">
+                            +12.5%
+                        </span>
+                    </div>
+                    <div className="mt-6 w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#528a7e] w-[70%] group-hover:w-[75%] transition-all duration-1000"></div>
+                    </div>
+                </Card>
+
+                <Card className="p-6 border-none shadow-soft overflow-hidden relative group">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-sm font-bold text-gray-500 mb-1">Avg. ATX Score</p>
+                            <h3 className="text-4xl font-black text-[#1a1a1a]">742</h3>
+                        </div>
+                        <span className="bg-[#e8f5e9] text-[#2e7d32] text-xs font-black px-2 py-1 rounded-lg flex items-center gap-0.5">
+                            +5.2%
+                        </span>
+                    </div>
+                    <div className="mt-6 w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#528a7e] w-[60%] group-hover:w-[65%] transition-all duration-1000"></div>
+                    </div>
+                </Card>
+
+                <Card className="p-6 border-none shadow-soft overflow-hidden relative group">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-sm font-bold text-gray-500 mb-1">Eligible Candidates</p>
+                            <h3 className="text-4xl font-black text-[#1a1a1a]">856</h3>
+                        </div>
+                        <span className="bg-[#ffebee] text-[#c62828] text-xs font-black px-2 py-1 rounded-lg flex items-center gap-0.5">
+                            -2.1%
+                        </span>
+                    </div>
+                    <div className="mt-6 w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#528a7e] w-[80%] group-hover:w-[85%] transition-all duration-1000"></div>
+                    </div>
+                </Card>
+            </div>
+
+            {/* Charts Section */}
+            <div className="grid md:grid-cols-5 gap-6">
+                <Card className="md:col-span-3 p-8 border-none shadow-soft min-h-[400px]">
+                    <div className="flex justify-between items-center mb-10">
+                        <h4 className="font-black text-[#1a1a1a]">ATX Score Spread</h4>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Current Batch</span>
+                    </div>
+
+                    {/* Placeholder for ATX spread chart - bar chart representation */}
+                    <div className="flex items-end justify-between h-48 gap-4 px-4">
+                        {[40, 65, 90, 75, 55].map((height, i) => (
+                            <div key={i} className="flex-1 flex flex-col items-center gap-4">
+                                <div
+                                    className="w-full bg-[#f0f4f4] rounded-t-xl hover:bg-[#528a7e]/20 transition-all cursor-pointer relative group overflow-hidden"
+                                    style={{ height: `${height}%` }}
+                                >
+                                    <div className="absolute inset-x-0 bottom-0 bg-[#528a7e] h-0 group-hover:h-full transition-all duration-500 opacity-20"></div>
+                                </div>
+                                <span className="text-[10px] font-bold text-gray-400">
+                                    {i * 200}-{(i + 1) * 200}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+
+                <Card className="md:col-span-2 p-8 border-none shadow-soft">
+                    <div className="flex justify-between items-center mb-10">
+                        <h4 className="font-black text-[#1a1a1a]">Candidate Eligibility</h4>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Real-time Analysis</span>
+                    </div>
+
+                    <div className="space-y-10">
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-end">
+                                <p className="text-sm font-bold text-gray-800">Eligible (Meets Benchmark)</p>
+                                <p className="text-sm font-black text-[#528a7e]">66.7%</p>
+                            </div>
+                            <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-[#528a7e] w-[66.7%] rounded-full shadow-sm"></div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-end">
+                                <p className="text-sm font-bold text-gray-800">Flagged (Skill Gap)</p>
+                                <p className="text-sm font-black text-[#ec9d40]">24.2%</p>
+                            </div>
+                            <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-[#ec9d40] w-[24.2%] rounded-full shadow-sm"></div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-end">
+                                <p className="text-sm font-bold text-gray-800">Ineligible</p>
+                                <p className="text-sm font-black text-gray-400">9.1%</p>
+                            </div>
+                            <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-gray-300 w-[9.1%] rounded-full shadow-sm"></div>
+                            </div>
                         </div>
                     </div>
+                </Card>
+            </div>
+
+            {/* Candidate Table */}
+            <Card className="border-none shadow-soft overflow-hidden">
+                <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-white">
+                    <h4 className="font-black text-[#1a1a1a]">Top Ranked Candidates</h4>
                     <div className="flex items-center gap-4">
-                        <div className="hidden sm:block text-right">
-                            <div className="text-sm font-semibold">{user.name}</div>
-                            <div className="text-xs text-gray-500 capitalize">{user.role} Partner</div>
-                        </div>
-                        <div className="w-10 h-10 rounded-full bg-tropicalTeal text-white flex items-center justify-center font-bold shadow-soft">
-                            {user.name?.charAt(0) || "R"}
-                        </div>
-                        <Button variant="ghost" size="sm" onClick={handleLogout} className="text-red-500 hover:bg-red-50 hover:text-red-600">
-                            Logout
-                        </Button>
+                        <span className="bg-[#e0f2f1] text-[#00796b] text-[10px] font-black px-2 py-1 rounded-md">AI SORTED</span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Updated 2m ago</span>
                     </div>
                 </div>
-            </header>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-                {/* Navigation Tabs */}
-                <div className="flex gap-4 mb-8">
-                    <button
-                        onClick={() => setActiveTab('candidates')}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'candidates' ? 'bg-jungle text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-eggshell'}`}
-                    >
-                        <Users size={20} /> Ranked Candidates
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('post-job')}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'post-job' ? 'bg-jungle text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-eggshell'}`}
-                    >
-                        <PlusCircle size={20} /> Post New Job
-                    </button>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-gray-50/30 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                <th className="py-5 px-8">Rank</th>
+                                <th className="py-5 px-8">Candidate</th>
+                                <th className="py-5 px-8">Applied Position</th>
+                                <th className="py-5 px-8">ATX Index</th>
+                                <th className="py-5 px-8">Match Explanation</th>
+                                <th className="py-5 px-8">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {candidates.map((cand) => (
+                                <tr key={cand.id} className="group hover:bg-[#f8fafa] transition-colors">
+                                    <td className="py-6 px-8">
+                                        <div className="w-8 h-8 rounded-full bg-[#fff8e1] border border-[#ffecb3] flex items-center justify-center text-[#ff8f00] font-black text-xs">
+                                            {cand.rank}
+                                        </div>
+                                    </td>
+                                    <td className="py-6 px-8">
+                                        <Link href={`/recruiter/candidates/${cand.id}`} className="flex items-center gap-4 group/item">
+                                            <div className="w-10 h-10 rounded-2xl bg-gray-100 flex items-center justify-center font-black text-jungle border border-gray-100 shadow-soft group-hover/item:scale-105 transition-transform">
+                                                {/* Original code used Image component, adapting to keep image display */}
+                                                <img src={cand.avatar} alt={cand.name} className="object-cover w-full h-full rounded-2xl" />
+                                            </div>
+                                            <div>
+                                                <p className="font-black text-gray-800 text-sm leading-tight group-hover/item:text-jungle transition-colors">{cand.name}</p>
+                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{cand.id}</p>
+                                            </div>
+                                        </Link>
+                                    </td>
+                                    <td className="py-6 px-8">
+                                        <span className="text-xs font-bold text-gray-600 italic">Senior Backend Engineer</span>
+                                    </td>
+                                    <td className="py-6 px-8">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-lg font-black text-[#528a7e]">{cand.atx}</span>
+                                            <TrendingUp className="w-3.5 h-3.5 text-[#528a7e]" />
+                                        </div>
+                                    </td>
+                                    <td className="py-6 px-8 min-w-[300px]">
+                                        <div className="flex flex-wrap gap-2">
+                                            {cand.tags.map((tag, i) => (
+                                                <span key={i} className="bg-gray-100/70 text-gray-500 text-[10px] font-black px-2.5 py-1 rounded-md border border-gray-200/50">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </td>
+                                    <td className="py-6 px-8">
+                                        <span className={cn(
+                                            "text-[10px] font-black px-2.5 py-1.5 rounded-lg border uppercase tracking-tight",
+                                            cand.status === 'Hired' ? "bg-green-50 text-green-600 border-green-100" :
+                                                cand.status === 'Shortlisted' ? "bg-jungle/5 text-jungle border-jungle/10" :
+                                                    "bg-gray-50 text-gray-500 border-gray-100"
+                                        )}>
+                                            {cand.status}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
-
-                {activeTab === 'candidates' ? (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {/* Top Metrics Row */}
-                        <div className="grid md:grid-cols-3 gap-6">
-                            <Card className="flex flex-col justify-center items-center text-center p-8">
-                                <Users className="w-10 h-10 text-mutedTeal mb-4" />
-                                <h3 className="text-3xl font-black text-gray-900">114</h3>
-                                <p className="text-gray-500 font-medium">Total Applicants</p>
-                            </Card>
-                            <Card className="flex flex-col justify-center items-center text-center p-8">
-                                <CheckCircle className="w-10 h-10 text-jungle mb-4" />
-                                <h3 className="text-3xl font-black text-gray-900">28</h3>
-                                <p className="text-gray-500 font-medium">Shortlisted</p>
-                            </Card>
-                            <Card className="flex flex-col">
-                                <h3 className="font-bold text-gray-900 mb-2">ATX Distribution</h3>
-                                <div className="h-32 w-full mt-auto">
-                                    <ReResponsiveContainer width="100%" height="100%">
-                                        <ReBarChart data={distributionData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                                            <ReXAxis dataKey="range" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af' }} />
-                                            <ReYAxis hide />
-                                            <ReTooltip cursor={{ fill: '#f3f4f6' }} contentStyle={{ borderRadius: '8px', border: 'none' }} />
-                                            <ReBar dataKey="count" fill="#528a7e" radius={[4, 4, 0, 0]}>
-                                                {distributionData.map((entry, index) => (
-                                                    <ReCell key={`cell-${index}`} fill={index === 1 ? '#4a7c59' : '#83c5be'} />
-                                                ))}
-                                            </ReBar>
-                                        </ReBarChart>
-                                    </ReResponsiveContainer>
-                                </div>
-                            </Card>
-                        </div>
-
-                        {/* Candidate Table */}
-                        <Card className="p-0 overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900">AI Ranked Candidates</h3>
-                                    <p className="text-sm text-gray-500">Sorted by Smart Match Score</p>
-                                </div>
-                                <Button variant="outline" size="sm">Export CSV</Button>
-                            </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
-                                            <th className="py-4 px-6 font-semibold">Candidate</th>
-                                            <th className="py-4 px-6 font-semibold">Smart Match</th>
-                                            <th className="py-4 px-6 font-semibold">ATX Score</th>
-                                            <th className="py-4 px-6 font-semibold">Key Skills</th>
-                                            <th className="py-4 px-6 font-semibold">Policy Status</th>
-                                            <th className="py-4 px-6 font-semibold text-right">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {candidates.map((cand) => (
-                                            <tr key={cand.id} className="hover:bg-eggshell/40 transition-colors">
-                                                <td className="py-4 px-6 font-medium text-gray-900">{cand.name}</td>
-                                                <td className="py-4 px-6">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="font-bold text-jungle">{cand.match}%</span>
-                                                        <div className="w-16 h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                            <div className="h-full bg-jungle" style={{ width: `${cand.match}%` }}></div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="py-4 px-6 font-semibold text-gray-700">{cand.atx}</td>
-                                                <td className="py-4 px-6">
-                                                    <div className="flex gap-1 flex-wrap">
-                                                        {cand.skills.map(skill => (
-                                                            <span key={skill} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md">{skill}</span>
-                                                        ))}
-                                                    </div>
-                                                </td>
-                                                <td className="py-4 px-6">
-                                                    {cand.policy ? (
-                                                        <span className="inline-flex items-center gap-1 text-xs font-bold text-jungle bg-green-50 px-2 py-1 rounded-full">
-                                                            <CheckCircle size={12} /> Eligible
-                                                        </span>
-                                                    ) : (
-                                                        <span className="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full" title={cand.policyReason}>
-                                                            <ShieldAlert size={12} /> Blocked
-                                                        </span>
-                                                    )}
-                                                </td>
-                                                <td className="py-4 px-6 text-right">
-                                                    <Button
-                                                        variant={cand.status === 'shortlisted' ? "secondary" : "outline"}
-                                                        size="sm"
-                                                        disabled={!cand.policy}
-                                                        className={cand.status === 'shortlisted' ? 'opacity-50 cursor-not-allowed' : ''}
-                                                    >
-                                                        {cand.status === 'shortlisted' ? 'Shortlisted' : 'Shortlist'}
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </Card>
-                    </div>
-                ) : (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-3xl">
-                        <Card className="p-8">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                <Briefcase className="w-6 h-6 text-jungle" /> Create Job Posting
-                            </h2>
-                            <form className="space-y-6">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Job Title / Role</label>
-                                    <Input placeholder="e.g. Frontend Developer" />
-                                </div>
-
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Minimum ATX Score</label>
-                                        <Input type="number" placeholder="e.g. 75" />
-                                        <p className="text-xs text-gray-500 mt-1">Filters out candidates below this ATX index.</p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Minimum CGPA (Policy)</label>
-                                        <Input type="number" step="0.1" placeholder="e.g. 7.5" />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Required Core Skills (comma separated)</label>
-                                    <Input placeholder="React, TypeScript, Next.js" />
-                                </div>
-
-                                <div className="pt-4 border-t border-gray-100">
-                                    <h4 className="font-bold text-gray-900 mb-4">Algorithm Weight Preferences</h4>
-                                    <p className="text-sm text-gray-500 mb-6">Adjust how the Smart Match engine ranks candidates for this specific role.</p>
-
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-4">
-                                            <label className="w-32 text-sm font-semibold text-gray-700">Skill Overlap</label>
-                                            <input type="range" className="flex-1 accent-jungle" defaultValue="40" />
-                                            <span className="w-12 text-sm font-bold text-jungle text-right">40%</span>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <label className="w-32 text-sm font-semibold text-gray-700">DSA / Logic</label>
-                                            <input type="range" className="flex-1 accent-jungle" defaultValue="30" />
-                                            <span className="w-12 text-sm font-bold text-jungle text-right">30%</span>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <label className="w-32 text-sm font-semibold text-gray-700">Project Quality</label>
-                                            <input type="range" className="flex-1 accent-jungle" defaultValue="30" />
-                                            <span className="w-12 text-sm font-bold text-jungle text-right">30%</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <Button className="w-full mt-8" type="button" size="lg">Publish Job & Run Match Engine</Button>
-                            </form>
-                        </Card>
-                    </div>
-                )}
-            </main>
+            </Card>
         </div>
     );
 }
