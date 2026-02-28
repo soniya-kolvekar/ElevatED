@@ -70,7 +70,7 @@ function AuthContent() {
     };
 
     return (
-        <div className="min-h-screen bg-eggshell flex flex-col justify-center items-center p-4">
+        <div className="min-h-screen bg-[#f8f6f0] flex flex-col justify-center items-center p-4">
             <Card className="w-full max-w-md p-8 shadow-xl">
                 <div className="text-center mb-8">
                     <div className="w-12 h-12 rounded-xl bg-jungle text-white flex items-center justify-center font-bold text-2xl mx-auto mb-4">
@@ -180,7 +180,7 @@ function AuthContent() {
 
 export default function AuthPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-eggshell flex items-center justify-center">Loading...</div>}>
+        <Suspense fallback={<div className="min-h-screen bg-[#f8f6f0] flex items-center justify-center">Loading...</div>}>
             <AuthContent />
         </Suspense>
     );

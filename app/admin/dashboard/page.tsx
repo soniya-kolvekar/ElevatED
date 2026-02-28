@@ -54,7 +54,7 @@ export default function AnalyticsDashboard() {
     };
 
     return (
-        <div className="w-full pb-10 space-y-6">
+        <div className="min-h-screen bg-[#f8f6f0] text-gray-800 pb-24">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
                 <div>
@@ -102,15 +102,26 @@ export default function AnalyticsDashboard() {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-[16px] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-[#f0f3f1]">
-                    <div className="flex justify-between items-start mb-2">
-                        <span className="text-[12px] font-bold text-gray-500">Active Policies</span>
-                        <DocumentDuplicateIcon className="w-4 h-4 text-[#457c5f]" />
-                    </div>
-                    <div className="text-[32px] font-black text-[#0a192f] mb-1">12</div>
-                    <div className="text-[11px] font-bold text-gray-400">
-                        Live configurations
-                    </div>
+                {/* Navigation Tabs */}
+                <div className="flex gap-4 mb-8 border-b border-gray-200 pb-4 overflow-x-auto">
+                    <button
+                        onClick={() => setActiveTab('analytics')}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all ${activeTab === 'analytics' ? 'bg-jungle text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-[#f8f6f0]'}`}
+                    >
+                        <ChartBarIcon className="w-5 h-5" /> Institutional Analytics
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('policies')}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all ${activeTab === 'policies' ? 'bg-jungle text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-[#f8f6f0]'}`}
+                    >
+                        <ShieldCheckIcon className="w-5 h-5" /> Global Policy Engine
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('audit')}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all ${activeTab === 'audit' ? 'bg-jungle text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-[#f8f6f0]'}`}
+                    >
+                        <DocumentTextIcon className="w-5 h-5" /> System Audit Logs
+                    </button>
                 </div>
 
                 <div className="bg-white rounded-[16px] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-[#f0f3f1]">
@@ -176,16 +187,24 @@ export default function AnalyticsDashboard() {
                                     </button>
                                 ))}
                             </div>
-                        </div>
-
-                        {/* Target Branches */}
-                        <div>
-                            <label className="text-[12px] font-bold text-[#0a192f] block mb-3">Target Branches</label>
-                            <div className="flex flex-wrap gap-2">
-                                {["CSE", "IT", "ECE"].map(branch => (
-                                    <span key={branch} className="px-3 py-1 bg-[#f4f7f5] text-[#457c5f] text-[11px] font-bold rounded flex items-center gap-1">
-                                        {branch} <span className="text-gray-400 cursor-pointer hover:text-red-400">×</span>
-                                    </span>
+                            <ul className="divide-y divide-gray-100">
+                                {auditLogs.map((log) => (
+                                    <li key={log.id} className="p-6 hover:bg-[#f8f6f0]/30 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                        <div className="flex items-start gap-4">
+                                            <div className={`mt-1 w-2.5 h-2.5 rounded-full shrink-0 ${log.action === 'policy_filtered' ? 'bg-red-500' :
+                                                log.action === 'shortlisted' ? 'bg-jungle' :
+                                                    log.action === 'policy_updated' ? 'bg-orange-500' : 'bg-tropicalTeal'
+                                                }`} />
+                                            <div>
+                                                <div className="flex items-baseline gap-2 mb-1">
+                                                    <span className="font-bold text-gray-900 capitalize">{log.action.replace('_', ' ')}</span>
+                                                    <span className="text-xs text-gray-400 font-mono">{log.time}</span>
+                                                </div>
+                                                <p className="text-sm text-gray-700 font-medium">{log.user}</p>
+                                                <p className="text-sm text-gray-500 mt-1">{log.detail}</p>
+                                            </div>
+                                        </div>
+                                    </li>
                                 ))}
                                 <button onClick={() => alert("Opening Add Branch modal...")} className="px-3 py-1 bg-white border border-gray-200 text-gray-400 text-[11px] font-bold rounded flex items-center gap-1 hover:bg-gray-50">
                                     + Add

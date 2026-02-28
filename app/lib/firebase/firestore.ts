@@ -7,6 +7,7 @@ export interface UserProfile {
     uid: string;
     email: string;
     name: string;
+    displayName?: string;
     role: Role;
     cgpa?: number;
     branch?: string;
@@ -15,13 +16,26 @@ export interface UserProfile {
     xp?: number;
     level?: number;
     resumeUrl?: string;
+    githubUrl?: string;
+    portfolioUrl?: string;
+    linkedinUrl?: string;
+    leetcodeUrl?: string;
+    bio?: string;
+    savedJobs?: { id: string; title: string; company: string; savedAt: number }[];
+    appliedJobs?: { id: string; title: string; company: string; appliedAt: number; status: string }[];
     resumeData?: {
-        projects: string[];
+        projects: { name: string; description: string; impact: string }[];
         domain: string;
         dsaLevel: string;
         experienceTimeline: any[];
         analyticalThinkingScore: number;
         marketabilityTrend: number;
+        globalRank: number;
+        aiSuggestions: string[];
+        aiAdvice?: string;
+        analysisLogs?: { status: "success" | "warning" | "info"; msg: string; time: string }[];
+        recommendedCompanies: { name: string; role: string; match: number }[];
+        readinessGrowth: { month: string; value: number }[];
     };
 }
 
@@ -33,7 +47,7 @@ export async function createUserDocument(user: any, additionalData: Partial<User
 
     if (!snapshot.exists()) {
         const { email } = user;
-        const { name, role, ...rest } = additionalData;
+        const { name, role, displayName, ...rest } = additionalData;
 
         try {
             await setDoc(userRef, {
@@ -41,6 +55,7 @@ export async function createUserDocument(user: any, additionalData: Partial<User
                 email,
                 name,
                 role,
+                displayName: displayName || user.displayName || name || null,
                 skills: [],
                 atxScore: 0,
                 xp: 0,

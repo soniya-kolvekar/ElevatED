@@ -30,35 +30,22 @@ export async function POST(req: Request) {
         // Academic Excellence: 200
         // Experience & Portfolio: 150
 
-        // 1. Technical Proficiency (Out of 400)
-        const skillPoints = Math.min((parsedData.skills?.length || 0) * 20, 200);
-        let dsaPoints = 50;
-        if (parsedData.dsaLevel === "Advanced") dsaPoints = 200;
-        else if (parsedData.dsaLevel === "Intermediate") dsaPoints = 140;
-        else if (parsedData.dsaLevel === "Basic") dsaPoints = 80;
-        const technicalScore = skillPoints + dsaPoints;
+        // 1. AI-Driven Baseline (70% weight)
+        const baseline = parsedData.atxBaselineScore || 650;
 
-        // 2. Soft Skills (Out of 250) - AI estimated
-        const softSkillsScore = parsedData.analyticalThinkingScore ? (parsedData.analyticalThinkingScore / 100) * 250 : 180;
-
-        // 3. Academic Excellence (Out of 200)
+        // 2. Academic & Verifiable Adjustments (30% weight)
         const cgpaRatio = Math.max(0, (cgpa - 4) / 6);
-        const academicScore = Math.min(cgpaRatio * 200, 200);
+        const academicScore = Math.min(cgpaRatio * 300, 300);
 
-        // 4. Experience & Portfolio (Out of 150)
-        const projectPoints = Math.min((parsedData.projects?.length || 0) * 25, 100);
-        const experiencePoints = parsedData.internship ? 50 : 0;
-        const expoScore = projectPoints + experiencePoints;
-
-        const totalScore = Math.floor(technicalScore + softSkillsScore + academicScore + expoScore);
+        const totalScore = Math.floor((baseline * 0.7) + academicScore);
 
         return NextResponse.json({
             totalScore: Math.min(totalScore, 1000),
             breakdown: {
-                technical: technicalScore,
-                softSkills: Math.round(softSkillsScore),
+                technical: Math.round(baseline * 0.4),
+                softSkills: Math.round(baseline * 0.2),
                 academic: Math.round(academicScore),
-                experience: expoScore
+                experience: Math.round(baseline * 0.1)
             }
         });
 

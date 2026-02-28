@@ -9,7 +9,7 @@ import * as motion from "framer-motion/client";
 
 export default function LandingPage() {
     return (
-        <div className="min-h-screen bg-eggshell font-sans text-gray-900 overflow-x-hidden selection:bg-jungle selection:text-white">
+        <div className="min-h-screen bg-[#f8f6f0] font-sans text-gray-900 overflow-x-hidden selection:bg-jungle selection:text-white">
 
             {/* Header / Navbar */}
             <header className="fixed top-0 z-50 w-full backdrop-blur-md bg-[#faf3dd]/80 border-b border-gray-200 transition-all duration-300">
@@ -88,10 +88,14 @@ export default function LandingPage() {
                             </button>
                         </Link>
                         <Link href="/simulator">
-                            <button className="flex items-center gap-3 bg-white hover:bg-gray-50 text-[#1C2924] px-8 py-4 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm transition-transform hover:scale-105">
-                                <div className="w-6 h-6 rounded-full bg-jungle/10 flex items-center justify-center">
+                            <button className="flex items-center gap-3 bg-white hover:bg-gray-50 text-[#1C2924] px-8 py-4 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm transition-transform hover:scale-105 group">
+                                <motion.div
+                                    animate={{ scale: [1, 1.1, 1] }}
+                                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                                    className="w-6 h-6 rounded-full bg-jungle/10 flex items-center justify-center group-hover:bg-jungle/20 transition-colors"
+                                >
                                     <Play fill="#4a7c59" className="text-jungle w-3 h-3 ml-0.5" />
-                                </div>
+                                </motion.div>
                                 Experience ATX
                             </button>
                         </Link>
@@ -118,50 +122,74 @@ export default function LandingPage() {
 
                         <div className="grid grid-cols-2 gap-8 items-center">
                             {/* ATX Score Circle */}
-                            <div className="relative flex flex-col items-center justify-center p-6 pb-8 bg-gray-50 rounded-2xl">
+                            <motion.div
+                                animate={{ y: [0, -5, 0] }}
+                                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                                className="relative flex flex-col items-center justify-center p-6 pb-8 bg-gray-50 rounded-2xl shadow-sm"
+                            >
                                 <svg className="w-32 h-32 transform -rotate-90">
                                     <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-gray-200" />
-                                    <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray="351.8" strokeDashoffset="42.2" className="text-jungle" strokeLinecap="round" />
+                                    <motion.circle
+                                        cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="12" fill="transparent"
+                                        strokeDasharray="351.8"
+                                        initial={{ strokeDashoffset: 351.8 }}
+                                        animate={{ strokeDashoffset: 42.2 }}
+                                        transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
+                                        className="text-jungle" strokeLinecap="round"
+                                    />
                                 </svg>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-4xl font-black text-[#1C2924]">882</span>
+                                    <motion.span
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.5, delay: 1.2 }}
+                                        className="text-4xl font-black text-[#1C2924]"
+                                    >
+                                        882
+                                    </motion.span>
                                     <span className="text-[10px] font-bold text-gray-400 tracking-wider">ATX INDEX</span>
                                 </div>
-                                <div className="absolute bottom-4 bg-white px-3 py-1 rounded-full text-[9px] font-black text-jungle uppercase tracking-widest shadow-sm border border-gray-100 flex items-center gap-1.5">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-jungle"></div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: 1.5 }}
+                                    className="absolute bottom-4 bg-white px-3 py-1 rounded-full text-[9px] font-black text-jungle uppercase tracking-widest shadow-sm border border-gray-100 flex items-center gap-1.5"
+                                >
+                                    <motion.div
+                                        animate={{ opacity: [1, 0.5, 1] }}
+                                        transition={{ repeat: Infinity, duration: 2 }}
+                                        className="w-1.5 h-1.5 rounded-full bg-jungle"
+                                    ></motion.div>
                                     Top 2% Talent Tier
-                                </div>
-                            </div>
+                                </motion.div>
+                            </motion.div>
 
                             {/* Progress Bars */}
                             <div className="flex flex-col gap-6">
-                                <div>
-                                    <div className="flex justify-between text-[10px] font-bold text-[#1C2924] uppercase tracking-wider mb-2">
-                                        <span>Tech Proficiency</span>
-                                        <span>96%</span>
+                                {[
+                                    { label: 'Tech Proficiency', val: '96%', color: 'bg-jungle' },
+                                    { label: 'Cognitive Aptitude', val: '84%', color: 'bg-jungle opacity-60' },
+                                    { label: 'Soft Skills Index', val: '91%', color: 'bg-jungle opacity-80' }
+                                ].map((bar, i) => (
+                                    <div key={i}>
+                                        <div className="flex justify-between text-[10px] font-bold text-[#1C2924] uppercase tracking-wider mb-2">
+                                            <span>{bar.label}</span>
+                                            <motion.span
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                transition={{ delay: 1 + i * 0.2 }}
+                                            >{bar.val}</motion.span>
+                                        </div>
+                                        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: bar.val }}
+                                                transition={{ duration: 1, delay: 0.8 + i * 0.2, ease: "easeOut" }}
+                                                className={`h-full rounded-full ${bar.color}`}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="w-full h-1.5 bg-gray-100 rounded-full">
-                                        <div className="h-full bg-jungle rounded-full" style={{ width: '96%' }}></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-[10px] font-bold text-[#1C2924] uppercase tracking-wider mb-2">
-                                        <span>Cognitive Aptitude</span>
-                                        <span>84%</span>
-                                    </div>
-                                    <div className="w-full h-1.5 bg-gray-100 rounded-full">
-                                        <div className="h-full bg-jungle rounded-full opacity-60" style={{ width: '84%' }}></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-[10px] font-bold text-[#1C2924] uppercase tracking-wider mb-2">
-                                        <span>Soft Skills Index</span>
-                                        <span>91%</span>
-                                    </div>
-                                    <div className="w-full h-1.5 bg-gray-100 rounded-full">
-                                        <div className="h-full bg-jungle rounded-full opacity-80" style={{ width: '91%' }}></div>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -224,7 +252,14 @@ export default function LandingPage() {
 
                     <div className="relative flex flex-col md:flex-row justify-between items-start gap-12 md:gap-0">
                         {/* Connecting Line */}
-                        <div className="hidden md:block absolute top-10 left-[10%] right-[10%] h-[1px] bg-gray-200 -z-10"></div>
+                        <div className="hidden md:block absolute top-10 left-[10%] right-[10%] h-[1px] bg-gray-200 -z-10 overflow-hidden">
+                            <motion.div
+                                initial={{ x: "-100%" }}
+                                animate={{ x: "200%" }}
+                                transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                                className="w-1/3 h-full bg-gradient-to-r from-transparent via-jungle to-transparent opacity-50"
+                            />
+                        </div>
 
                         {[
                             { icon: CloudUpload, title: "Upload Resume", desc: "Sync historical academic data and latest project portfolios via ERP." },
@@ -240,8 +275,13 @@ export default function LandingPage() {
                                 transition={{ duration: 0.5, delay: idx * 0.2 }}
                                 className="flex flex-col items-center text-center w-full md:w-1/4 px-4 bg-white"
                             >
-                                <div className="w-20 h-20 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center text-jungle mb-6 relative hover:scale-110 transition-transform">
-                                    <step.icon size={24} />
+                                <div className="w-20 h-20 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center text-jungle mb-6 relative hover:scale-110 transition-transform group">
+                                    <motion.div
+                                        animate={{ y: [0, -4, 0] }}
+                                        transition={{ repeat: Infinity, duration: 3, delay: idx * 0.2, ease: "easeInOut" }}
+                                    >
+                                        <step.icon size={24} className="group-hover:text-tropicalTeal transition-colors" />
+                                    </motion.div>
                                 </div>
                                 <h3 className="text-lg font-bold text-[#1C2924] mb-3">{step.title}</h3>
                                 <p className="text-xs text-gray-500 leading-relaxed font-medium">{step.desc}</p>
@@ -252,7 +292,7 @@ export default function LandingPage() {
             </section>
 
             {/* The Solution */}
-            <section id="intelligence" className="py-24 px-8 bg-eggshell">
+            <section id="intelligence" className="py-24 px-8 bg-[#f8f6f0]">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -355,9 +395,13 @@ export default function LandingPage() {
                     className="max-w-[1200px] mx-auto"
                 >
                     <h2 className="text-4xl md:text-5xl font-black mb-6">Built for Measurable Impact</h2>
-                    <div className="inline-flex items-center bg-white/10 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase backdrop-blur-sm mb-16 shadow-sm">
+                    <motion.div
+                        animate={{ y: [0, -4, 0] }}
+                        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                        className="inline-flex items-center bg-white/10 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase backdrop-blur-sm mb-16 shadow-sm"
+                    >
                         Institutional Performance Metrics 2024
-                    </div>
+                    </motion.div>
 
                     <div className="grid md:grid-cols-3 gap-12 border-b border-white/10 pb-20">
                         {/* Stat 1 */}
@@ -428,7 +472,7 @@ export default function LandingPage() {
             </section>
 
             {/* Final CTA Box */}
-            <section className="bg-eggshell py-24 px-8">
+            <section className="bg-[#f8f6f0] py-24 px-8">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 30 }}
                     whileInView={{ opacity: 1, scale: 1, y: 0 }}

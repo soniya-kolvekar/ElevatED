@@ -1,247 +1,404 @@
 "use client";
-
+import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
+
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
 } from 'recharts';
 import {
-    Search,
-    Bell,
     Filter,
-    ChevronRight,
+    ChevronDown,
     Building2,
-    MapPin,
     Clock,
     DollarSign,
     Zap,
-    AlertTriangle,
     TrendingUp,
     BrainCircuit,
-    ArrowUpRight
+    ArrowUpRight,
+    ArrowRight,
+    CheckCircle2,
+    PlusCircle,
+    CheckCircle
 } from "lucide-react";
 import { getStudentDashboardData } from "@/lib/student-data";
 import { cn } from "@/lib/utils";
+import { db } from "@/lib/firebase/config";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+
+const MOCK_OPPORTUNITIES = [
+    {
+        id: "opp-1",
+        company: "Google",
+        role: "Associate Product Manager",
+        location: "Mountain View, CA",
+        salary: "$120k - $160k",
+        type: "Full-Time",
+        match: 94,
+        category: "Product Management",
+        badges: ["SQL EXPERT", "TOP 5% APPLICANT"],
+        radarData: [
+            { subject: 'SQL', A: 140, fullMark: 150 },
+            { subject: 'Strategy', A: 120, fullMark: 150 },
+            { subject: 'Design', A: 86, fullMark: 150 },
+            { subject: 'Comms', A: 110, fullMark: 150 },
+            { subject: 'Analytics', A: 130, fullMark: 150 },
+        ],
+        whyMatch: [
+            "Exceeds SQL proficiency requirements",
+            "Top 5% in Problem Solving (ATX)"
+        ],
+        gaps: [
+            { label: "A/B Testing", critical: false },
+            { label: "Roadmapping Tools", critical: false },
+            { label: "System Design (Low Score)", critical: true }
+        ],
+        recommendation: "Complete the 'Advanced System Design' Skill Lab module to increase match by 4%.",
+        logoColor: "bg-gray-900 border-gray-800 text-white",
+        logoText: "G"
+    },
+    {
+        id: "opp-2",
+        company: "Stripe",
+        role: "Full Stack Engineer (Growth)",
+        location: "San Francisco, CA",
+        salary: "$140k - $190k",
+        type: "Hybrid",
+        match: 82,
+        category: "Software Engineering",
+        badges: ["TOP 10% CANDIDATE", "REACT EXPERT"],
+        radarData: [
+            { subject: 'React', A: 140, fullMark: 150 },
+            { subject: 'Node', A: 110, fullMark: 150 },
+            { subject: 'DB', A: 90, fullMark: 150 },
+            { subject: 'System', A: 85, fullMark: 150 },
+            { subject: 'Growth', A: 120, fullMark: 150 },
+        ],
+        whyMatch: [
+            "Matches required tech stack exactly",
+            "Strong side-project impact metrics"
+        ],
+        gaps: [
+            { label: "High Scale Architecture", critical: true },
+            { label: "Payments Domain", critical: false }
+        ],
+        recommendation: "Focus your next project on high-throughput message queues.",
+        logoColor: "bg-blue-900 border-blue-800 text-white",
+        logoText: "S"
+    },
+    {
+        id: "opp-3",
+        company: "Meta",
+        role: "Data Scientist, Analytics",
+        location: "Menlo Park, CA",
+        salary: "$155k - $210k",
+        type: "On-Site",
+        match: 78,
+        category: "Data Science",
+        badges: ["PYTHON CORE", "STRONG ANALYTICS"],
+        radarData: [
+            { subject: 'Python', A: 140, fullMark: 150 },
+            { subject: 'SQL', A: 130, fullMark: 150 },
+            { subject: 'Stats', A: 110, fullMark: 150 },
+            { subject: 'ML', A: 70, fullMark: 150 },
+            { subject: 'Viz', A: 95, fullMark: 150 },
+        ],
+        whyMatch: [
+            "Strong Analytical Thinking ATX score",
+            "Significant Python coursework"
+        ],
+        gaps: [
+            { label: "A/B Testing Frameworks", critical: true },
+            { label: "Dashboarding", critical: false }
+        ],
+        recommendation: "Add more end-to-end data visualization tools to portfolio.",
+        logoColor: "bg-[#0668E1] border-blue-700 text-white",
+        logoText: "M"
+    }
+];
 
 const OpportunityCard = ({
-    company,
-    role,
-    location,
-    salary,
-    type,
-    match,
-    radarData
-}: any) => (
-    <Card className="p-8 border-gray-100 hover:border-tropicalTeal/20 transition-all duration-500 group">
-        <div className="flex flex-col md:flex-row gap-8">
-            {/* Company Info */}
-            <div className="flex-1 space-y-6">
-                <div className="flex gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                        <Building2 className="w-7 h-7 text-gray-400 group-hover:text-jungle transition-colors" />
-                    </div>
-                    <div>
-                        <h4 className="text-xl font-black text-gray-900 group-hover:text-jungle transition-colors">{role}</h4>
-                        <p className="text-sm font-bold text-gray-500 mt-0.5">{company} • {location} (Remote Friendly)</p>
-                        <div className="flex items-center gap-4 mt-3 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                            <span className="flex items-center gap-1.5"><DollarSign size={13} /> {salary}</span>
-                            <span className="flex items-center gap-1.5"><Clock size={13} /> {type}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-gray-50">
-                    <div>
-                        <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Why You Match</h5>
-                        <div className="h-40 w-full mb-4">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                                    <PolarGrid stroke="#f3f4f6" />
-                                    <PolarAngleAxis dataKey="subject" tick={{ fontSize: 8, fontWeight: 900, fill: '#9ca3af' }} />
-                                    <Radar name="Match" dataKey="A" stroke="#00f2ea" fill="#00f2ea" fillOpacity={0.15} strokeWidth={2} />
-                                </RadarChart>
-                            </ResponsiveContainer>
-                        </div>
-                        <ul className="space-y-2">
-                            <li className="flex items-center gap-2 text-[11px] font-bold text-gray-600">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Exceeds SQL proficiency requirements
-                            </li>
-                            <li className="flex items-center gap-2 text-[11px] font-bold text-gray-600">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Top 5% in Problem Solving (ATX)
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className="flex flex-col">
-                        <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Gaps to Bridge</h5>
-                        <div className="flex flex-wrap gap-2 mb-6">
-                            {["A/B Testing", "Roadmapping Tools"].map(g => (
-                                <span key={g} className="px-3 py-1.5 bg-gray-50 text-[10px] font-bold text-gray-500 rounded-lg border border-gray-100 capitalize">{g}</span>
-                            ))}
-                            <span className="px-3 py-1.5 bg-rose-50 text-[10px] font-bold text-rose-500 rounded-lg border border-rose-100 capitalize">System Design (Low Score)</span>
-                        </div>
-                        <p className="text-[11px] text-gray-400 font-medium leading-relaxed italic border-l-2 border-rose-100 pl-3 mb-auto">
-                            Recommendation: Complete the "Advanced System Design" Skill Lab module to increase match by 4%.
-                        </p>
-                        <div className="mt-8 space-y-3">
-                            <Button className="w-full h-12 bg-[#00f2ea] text-tropicalTeal font-black rounded-xl shadow-xl shadow-[#00f2ea]/20 gap-2 hover:bg-[#00ffd9]">
-                                APPLY NOW <ChevronRight size={18} />
-                            </Button>
-                            <Button variant="outline" className="w-full h-12 border-gray-100 text-gray-500 font-black rounded-xl hover:bg-gray-50 transition-all">
-                                Save Opportunity
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Match Score Sidebar in Card */}
-            <div className="md:w-64 flex flex-col items-end md:border-l md:border-gray-50 md:pl-8">
-                <div className="text-right mb-4">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Match Score</p>
-                    <span className="text-3xl font-black text-tropicalTeal leading-none">{match}%</span>
-                </div>
-                <div className="w-full h-2 bg-gray-50 rounded-full overflow-hidden mb-8">
-                    <motion.div
-                        className="h-full bg-[#00f2ea] rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${match}%` }}
-                        transition={{ duration: 1, delay: 0.2 }}
-                    />
-                </div>
-            </div>
-        </div>
-    </Card>
-);
-
-export default function MatchesPage() {
-    const { user } = useAuthStore();
-
-    const radarData = [
-        { subject: 'Tech', A: 120, fullMark: 150 },
-        { subject: 'Soft', A: 98, fullMark: 150 },
-        { subject: 'Culture', A: 86, fullMark: 150 },
-        { subject: 'Impact', A: 99, fullMark: 150 },
-        { subject: 'Growth', A: 85, fullMark: 150 },
-    ];
+    opp, user, expandedIds, toggleExpand, onSave, onApply
+}: any) => {
+    const isExpanded = expandedIds.includes(opp.id);
+    const isSaved = user?.savedJobs?.some((j: any) => j.id === opp.id) || false;
+    const isApplied = user?.appliedJobs?.some((j: any) => j.id === opp.id) || false;
 
     return (
-        <div className="space-y-8 pb-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="max-w-xl">
-                    <h1 className="text-3xl font-black text-gray-900 leading-none mb-4">Smart Match Opportunities</h1>
-                    <p className="text-sm text-gray-400 font-medium leading-relaxed">
-                        AI-powered job recommendations curated specifically for your profile. Matches are calculated based on your ATX scoring, historical performance, and technical assessments.
-                    </p>
+        <Card className="bg-white p-6 md:p-8 border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                <div className="flex items-center gap-4">
+                    <div className={cn("w-14 h-14 rounded-xl flex items-center border justify-center text-xl font-bold", opp.logoColor)}>
+                        {opp.logoText}
+                    </div>
+                    <div>
+                        <h4 className="text-xl font-black text-gray-900 leading-tight">{opp.role}</h4>
+                        <p className="text-sm font-bold text-gray-500">{opp.company} • {opp.location} (Remote Friendly)</p>
+                        <div className="flex gap-4 mt-2">
+                            <span className="text-[11px] font-black text-[#4a7c59] flex items-center gap-1 uppercase">
+                                <DollarSign size={13} /> {opp.salary}
+                            </span>
+                            <span className="text-[11px] font-black text-[#4a7c59] flex items-center gap-1 uppercase">
+                                <Clock size={13} /> {opp.type}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div className="bg-tropicalTeal/[0.03] border border-tropicalTeal/10 rounded-2xl p-4 flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[10px] font-black text-tropicalTeal uppercase tracking-widest leading-none">Profile Match: 92%</span>
+                <div className="flex flex-col items-end shrink-0 w-32 border-l border-gray-100 pl-4">
+                    <span className="text-[10px] font-black uppercase text-[#4a7c59]/60 tracking-widest mb-1">Match Score</span>
+                    <span className="text-3xl font-black text-[#5fb896] leading-none mb-1">{opp.match}%</span>
+                    <div className="w-full h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
+                        <div className="h-full bg-[#5fb896] rounded-full" style={{ width: `${opp.match}%` }} />
+                    </div>
                 </div>
             </div>
 
+            {!isExpanded && (
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-2">
+                    <div className="flex gap-2">
+                        {opp.badges.map((b: string) => (
+                            <span key={b} className="px-3 py-1 bg-[#4a7c59]/10 text-[#4a7c59] text-[9px] font-black uppercase tracking-widest rounded-full">{b}</span>
+                        ))}
+                    </div>
+                    <button onClick={() => toggleExpand(opp.id)} className="text-[11px] font-black text-[#4a7c59] flex items-center gap-1 hover:underline">
+                        View alignment details <ChevronDown size={14} />
+                    </button>
+                </div>
+            )}
+
+            <AnimatePresence>
+                {isExpanded && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                    >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 mt-4 border-t border-gray-100">
+                            <div>
+                                <h5 className="text-[11px] font-black text-[#4a7c59] uppercase tracking-widest mb-4">Why You Match</h5>
+                                <div className="h-32 w-full mb-4 opacity-80">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={opp.radarData}>
+                                            <PolarGrid stroke="#f3f4f6" />
+                                            <PolarAngleAxis dataKey="subject" tick={{ fontSize: 9, fontWeight: 800, fill: '#9ca3af' }} />
+                                            <Radar name="Match" dataKey="A" stroke="#5fb896" fill="#5fb896" fillOpacity={0.2} strokeWidth={2} />
+                                        </RadarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                <ul className="space-y-2 mt-2">
+                                    {opp.whyMatch.map((m: string, i: number) => (
+                                        <li key={i} className="flex items-center gap-2 text-xs font-bold text-gray-700">
+                                            <CheckCircle2 size={14} className="text-[#4a7c59] shrink-0" /> {m}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div className="flex flex-col">
+                                <h5 className="text-[11px] font-black text-[#4a7c59] uppercase tracking-widest mb-4">Gaps to Bridge</h5>
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    {opp.gaps.map((g: any, i: number) => (
+                                        <div key={i} className={cn(
+                                            "flex items-center px-3 py-1.5 rounded-full text-[10px] font-bold border",
+                                            g.critical ? "bg-red-50 text-red-600 border-red-100" : "bg-gray-50 text-gray-600 border-gray-200"
+                                        )}>
+                                            {g.label} {g.critical ? "" : <span className="ml-1 opacity-50">℗</span>}
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="text-xs text-gray-500 font-medium italic border-l-2 border-gray-200 pl-3 mb-auto">
+                                    Recommendation: {opp.recommendation}
+                                </p>
+                                <div className="mt-8 flex flex-col gap-3">
+                                    <Button
+                                        onClick={(e) => { e.stopPropagation(); onApply(opp); }}
+                                        disabled={isApplied}
+                                        className="w-full h-12 bg-[#4a7c59] hover:bg-[#3d664a] text-white font-black rounded-xl gap-2 transition-all shadow-md active:scale-95"
+                                    >
+                                        {isApplied ? (
+                                            <>APPLIED <CheckCircle size={18} /></>
+                                        ) : (
+                                            <>APPLY NOW <ArrowRight size={18} /></>
+                                        )}
+                                    </Button>
+                                    <Button
+                                        onClick={(e) => { e.stopPropagation(); onSave(opp); }}
+                                        disabled={isSaved}
+                                        variant="outline"
+                                        className="w-full h-12 border-gray-200 text-[#4a7c59] bg-white font-black rounded-xl hover:bg-gray-50 transition-all active:scale-95"
+                                    >
+                                        {isSaved ? "Saved Opportunity ✓" : "Save Opportunity"}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="pt-2 text-center mt-4">
+                            <button onClick={() => toggleExpand(opp.id)} className="text-[11px] font-black text-gray-400 flex items-center justify-center w-full gap-1 hover:text-gray-600 uppercase tracking-widest">
+                                Collapse details <ChevronDown size={14} className="rotate-180" />
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </Card>
+    );
+};
+
+export default function MatchesPage() {
+    const { user, setUser } = useAuthStore();
+    const [activeFilter, setActiveFilter] = useState("All Matches");
+    const [expandedIds, setExpandedIds] = useState<string[]>(["opp-1"]);
+
+    // Calculate Dynamic UI metrics if available
+    const marketabilityTrend = user?.resumeData?.marketabilityTrend || 12.4;
+
+    const toggleExpand = (id: string) => {
+        setExpandedIds(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
+    };
+
+    const handleSave = async (opp: any) => {
+        if (!user) return;
+        const newSavedJob = {
+            id: opp.id,
+            title: opp.role,
+            company: opp.company,
+            savedAt: Date.now()
+        };
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, {
+            savedJobs: arrayUnion(newSavedJob)
+        });
+        setUser({ ...user, savedJobs: [...(user.savedJobs || []), newSavedJob] });
+    };
+
+    const handleApply = async (opp: any) => {
+        if (!user) return;
+        const newAppliedJob = {
+            id: opp.id,
+            title: opp.role,
+            company: opp.company,
+            appliedAt: Date.now(),
+            status: "Applied"
+        };
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, {
+            appliedJobs: arrayUnion(newAppliedJob)
+        });
+        setUser({ ...user, appliedJobs: [...(user.appliedJobs || []), newAppliedJob] });
+    };
+
+    const filters = ['All Matches', 'High Match (90+)', 'Product Roles', 'Frontend', 'Backend'];
+
+    const filteredOpportunities = MOCK_OPPORTUNITIES.filter(opp => {
+        if (activeFilter === 'All Matches') return true;
+        if (activeFilter === 'High Match (90+)') return opp.match >= 90;
+        if (activeFilter === 'Product Roles') return opp.category === "Product Management";
+        if (activeFilter === 'Frontend' || activeFilter === 'Backend') {
+            const roleLower = opp.role.toLowerCase();
+            return roleLower.includes(activeFilter.toLowerCase()) || opp.category.toLowerCase().includes(activeFilter.toLowerCase());
+        }
+        return true;
+    });
+
+    return (
+        <div className="space-y-8 pb-12 max-w-5xl mx-auto bg-[#f8f6f0] min-h-screen px-4 md:px-0">
             {/* Filter Tabs */}
-            <div className="flex flex-wrap gap-3">
-                {[
-                    { label: "All Matches", icon: Filter, active: true },
-                    { label: "High Match (>80%)", active: false },
-                    { label: "Product Management", active: false },
-                    { label: "Software Engineering", active: false },
-                    { label: "Data Science", active: false },
-                ].map((tab, i) => (
+            <div className="flex flex-wrap gap-2 pt-6">
+                {filters.map((tab, idx) => (
                     <button
-                        key={tab.label}
+                        key={tab}
+                        onClick={() => setActiveFilter(tab)}
                         className={cn(
-                            "px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-tight flex items-center gap-2 transition-all",
-                            tab.active
-                                ? "bg-emerald-400 text-white shadow-lg shadow-emerald-200"
-                                : "bg-white text-gray-400 border border-gray-100 hover:border-gray-200"
+                            "px-4 py-2 border rounded-xl text-[11px] font-black uppercase tracking-widest transition-all",
+                            activeFilter === tab
+                                ? "bg-[#4a7c59] text-white border-[#4a7c59] shadow-sm flex items-center gap-1.5"
+                                : "bg-white text-gray-500 border-gray-200 hover:border-[#4a7c59]/50 hover:text-[#4a7c59]"
                         )}
                     >
-                        {tab.icon && <tab.icon size={14} />}
-                        {tab.label}
-                        {tab.active && <ChevronRight size={14} className="rotate-90 ml-2 opacity-50" />}
+                        {tab === 'All Matches' && activeFilter === tab && <Filter size={12} />}
+                        {tab}
                     </button>
                 ))}
             </div>
 
             {/* Opportunities List */}
-            <div className="space-y-8">
-                <OpportunityCard
-                    company="Google"
-                    role="Associate Product Manager"
-                    location="Mountain View, CA"
-                    salary="120K - 160K"
-                    type="FULL-TIME"
-                    match={94}
-                    radarData={radarData}
-                />
-                <OpportunityCard
-                    company="Stripe"
-                    role="Full Stack Engineer (Growth)"
-                    location="San Francisco, CA"
-                    salary="140K - 190K"
-                    type="HYBRID"
-                    match={82}
-                    radarData={radarData.map(d => ({ ...d, A: d.A * 0.8 }))}
-                />
+            <div className="space-y-6">
+                {filteredOpportunities.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500 font-bold">No matches found for this filter.</div>
+                ) : (
+                    filteredOpportunities.map((opp, idx) => (
+                        <motion.div
+                            key={opp.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                        >
+                            <OpportunityCard
+                                opp={opp}
+                                user={user}
+                                expandedIds={expandedIds}
+                                toggleExpand={toggleExpand}
+                                onSave={handleSave}
+                                onApply={handleApply}
+                            />
+                        </motion.div>
+                    ))
+                )}
             </div>
 
-            {/* Bottom Insight Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Card className="bg-[#1a1c1e] text-white border-none p-8 relative overflow-hidden group">
-                    <div className="absolute -top-12 -right-12 w-48 h-48 bg-tropicalTeal/10 rounded-full blur-3xl" />
-                    <div className="flex justify-between items-start mb-8 relative z-10">
-                        <BrainCircuit className="text-emerald-400" size={24} />
-                        <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest border border-emerald-400/20 px-3 py-1 rounded-full">Skill Strength</span>
+            {/* Bottom Metrics matching Mockup */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+                {/* Skill Strength */}
+                <div className="bg-[#4a7c59] rounded-2xl p-6 text-white relative overflow-hidden shadow-sm">
+                    <div className="absolute right-4 top-4 opacity-20">
+                        <BrainCircuit size={80} />
                     </div>
-                    <div className="relative z-10">
-                        <p className="text-sm font-bold text-gray-300 uppercase tracking-[0.2em] mb-2">Analytical Thinking</p>
-                        <h4 className="text-4xl font-black text-emerald-400 mb-4">Top 2%</h4>
-                        <p className="text-[11px] text-gray-400 font-medium leading-relaxed">
-                            Your cognitive assessment scores place you ahead of 98% of engineering students in systemic logic.
-                        </p>
-                    </div>
-                </Card>
+                    <h5 className="text-[10px] font-black uppercase tracking-widest text-[#a5c3af] mb-1">Skill Strength</h5>
+                    <h4 className="text-base font-bold mb-4">Analytical Thinking</h4>
+                    <span className="text-4xl font-black block mb-4">Top 2%</span>
+                    <p className="text-xs text-[#a5c3af] leading-relaxed max-w-[85%] font-medium">
+                        Your cognitive assessment scores place you ahead of 98% of engineering students in systemic logic.
+                    </p>
+                </div>
 
-                <Card className="p-8 group hover:border-jungle/20 transition-all duration-500">
-                    <div className="flex justify-between items-start mb-8">
-                        <TrendingUp className="text-jungle" size={24} />
-                        <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Placement Trend</span>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-sm font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">Marketability</p>
-                        <div className="flex items-baseline gap-2">
-                            <h4 className="text-4xl font-black text-gray-900">+12.4%</h4>
-                        </div>
-                        <div className="h-1.5 w-full bg-gray-50 rounded-full overflow-hidden mt-6">
-                            <motion.div
-                                className="h-full bg-jungle rounded-full"
-                                initial={{ width: "30%" }}
-                                animate={{ width: "65%" }}
-                                transition={{ duration: 1.5 }}
-                            />
-                        </div>
-                        <p className="text-[10px] text-jungle font-black uppercase tracking-widest pt-4 flex items-center gap-1">
-                            <ArrowUpRight size={12} /> Rising faster than peers
-                        </p>
-                    </div>
-                </Card>
-
-                <div className="bg-[#00f2ea] rounded-[32px] p-10 flex flex-col justify-between group cursor-pointer hover:shadow-2xl hover:shadow-[#00f2ea]/20 transition-all duration-500">
+                {/* Placement Trend */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
                     <div>
-                        <h3 className="text-2xl font-black text-tropicalTeal mb-4 leading-tight">Boost Your Score Today</h3>
-                        <p className="text-sm text-tropicalTeal/60 font-medium mb-8">
+                        <div className="flex items-center gap-2 mb-4">
+                            <TrendingUp size={16} className="text-[#4a7c59]" />
+                            <h5 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Placement Trend</h5>
+                        </div>
+                        <h4 className="text-lg font-black text-gray-900 mb-1">Marketability</h4>
+                        <span className="text-4xl font-black text-[#5fb896]">+{marketabilityTrend}%</span>
+                    </div>
+                    <div>
+                        <div className="h-1.5 w-full bg-gray-100 rounded-full mt-4 overflow-hidden mb-2">
+                            <div className="h-full bg-[#5fb896] rounded-full w-2/3" />
+                        </div>
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Rising faster than peers</p>
+                    </div>
+                </div>
+
+                {/* Boost Score */}
+                <div className="bg-[#e4ebdd] border border-[#cbd8c0] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h4 className="text-xl font-black text-[#3d664a] leading-tight mb-2">Boost Your<br />Score Today</h4>
+                        <p className="text-xs text-[#4a7c59]/80 font-bold">
                             Missing 2 core technical skills for high-paying roles.
                         </p>
                     </div>
-                    <Button className="h-14 bg-gray-900 text-white font-black rounded-2xl gap-3 text-sm hover:scale-105 transition-transform">
-                        Enter Skill Lab <ArrowUpRight size={18} />
+                    <Button className="w-full bg-[#4a7c59] hover:bg-[#3d664a] text-white font-black h-10 rounded-xl mt-4 gap-1 text-[11px] uppercase tracking-widest shadow-sm">
+                        Enter Skill Lab <ArrowUpRight size={14} />
                     </Button>
                 </div>
             </div>
+
+            
         </div>
     );
 }

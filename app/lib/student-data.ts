@@ -36,60 +36,66 @@ export type StudentData = {
     projects: Project[];
     experiences: Experience[];
     aiSuggestions: string[];
+    aiAdvice: string;
+    atxBreakdown: {
+        technical: number;
+        softSkills: number;
+        academic: number;
+        experience: number;
+    } | null;
+    consistencyScore?: number;
+    courseworkScore?: number;
+    analysisLogs: { status: "success" | "warning" | "info"; msg: string; time: string }[];
 };
 
 export const getStudentDashboardData = (user: any): StudentData => {
-    const name = user?.name || "Student";
     const resumeData = user?.resumeData || {};
 
     return {
-        atxScore: user?.atxScore || 686,
-        atxScoreDelta: 5,
-        globalRank: 1402,
-        campusRankDelta: 12,
-        nationalRankDelta: 45,
-        xp: user?.xp || 12450,
+        atxScore: user?.atxScore || 0,
+        atxScoreDelta: 0,
+        globalRank: resumeData.globalRank || 0,
+        campusRankDelta: 0,
+        nationalRankDelta: 0,
+        xp: user?.xp || 0,
         xpToNextTier: 15000,
         tier: (user?.atxScore || 0) > 850 ? "Platinum" : "Gold",
-        readinessGrowth: [
-            { month: "JAN", value: 30 },
-            { month: "FEB", value: 45 },
-            { month: "MAR", value: 38 },
-            { month: "APR", value: 55 },
-            { month: "MAY", value: 68 },
-            { month: "JUN", value: user?.atxScore ? Math.round((user.atxScore / 1000) * 100) : 82 },
-        ],
-        recommendedCompanies: [
-            { name: "TechFlow Systems", role: "Cloud Infrastructure Intern", match: 98 },
-            { name: "FinEdge Labs", role: "Junior Frontend Developer", match: 92 },
-            { name: "Nexus AI", role: "Machine Learning Associate", match: 87 },
-            { name: "BioGrid Corp", role: "Data Analytics Intern", match: 81 },
-            { name: "SwiftCart", role: "Software Engineer (New Grad)", match: 76 },
-        ],
-        skills: user?.skills?.map((s: string) => ({
-            name: s,
-            score: 70 + Math.floor(Math.random() * 25), // Mocking individual skill scores for now
-            needsImprovement: false
-        })) || [
-                { name: "Full Stack Development", score: 92 },
-                { name: "System Design", score: 78 },
-                { name: "Cloud Computing (AWS)", score: 45, needsImprovement: true },
-            ],
-        projects: resumeData.projects?.map((p: string) => ({
-            name: p,
-            description: "Extracted from resume",
-            impact: "High Impact"
-        })) || [
-                { name: "Industry-Grade E-commerce", description: "Scaleable microservices architecture", impact: "40% latency reduction" },
-                { name: "AI Resume Parser", description: "LLM-based structured data extraction", impact: "Daily deploy frequency" }
-            ],
-        experiences: resumeData.experienceTimeline || [
-            { role: "Lead Developer", company: "TechFlow Systems", duration: "4 years 2 months", description: "Overseeing core infrastructure", current: true },
-            { role: "Software Engineer", company: "InnovateHQ", duration: "2 years 1 month", description: "Focused on frontend performance" }
-        ],
-        aiSuggestions: [
-            "Quantify impact in TechFlow: Specifically mention the user base size affected by the AWS Lambda migration.",
-            "Certifications missing: AI detected high proficiency in AWS, but no formal certification is listed. Adding 'AWS Solutions Architect' would boost score by +5."
-        ]
+        readinessGrowth: (resumeData.readinessGrowth || []).map((data: { month: string; value: number }, index: number, arr: any[]) => {
+            // Generate realistic increasing curve ensuring last month is the actual value.
+            // Spread values between 40% and actual max value based on position.
+            const targetValue = Math.min(Math.max(data.value, 0), 100);
+            const startValue = Math.max(targetValue - 45, 20); // starts ~45% lower
+            const progress = index / Math.max(arr.length - 1, 1);
+
+            // Linear interpolation with a slight random variance for realism
+            let simulatedValue = startValue + (targetValue - startValue) * progress;
+            if (index !== arr.length - 1) {
+                // Add minor random variance (-5 to +5) except for the final month
+                simulatedValue += (Math.random() * 10 - 5);
+            }
+
+            return {
+                ...data,
+                value: Math.round(Math.min(Math.max(simulatedValue, 0), 100))
+            };
+        }),
+        recommendedCompanies: resumeData.recommendedCompanies || [],
+        skills: user?.resumeData?.skills?.map((s: any) => ({
+            name: s.name,
+            score: s.score,
+            needsImprovement: s.score < 50
+        })) || [],
+        projects: resumeData.projects?.map((p: any) => ({
+            name: p.name,
+            description: p.description,
+            impact: p.impact || ""
+        })) || [],
+        experiences: resumeData.experienceTimeline || [],
+        aiSuggestions: resumeData.aiSuggestions || [],
+        aiAdvice: resumeData.aiAdvice || "Awaiting resume analysis...",
+        atxBreakdown: resumeData.atxBreakdown || null,
+        consistencyScore: resumeData.consistencyScore || 0,
+        courseworkScore: resumeData.courseworkScore || 0,
+        analysisLogs: resumeData.analysisLogs || [],
     };
 };

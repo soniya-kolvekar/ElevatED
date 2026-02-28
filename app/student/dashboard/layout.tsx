@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { DashboardSidebar } from "@/components/student/DashboardSidebar";
 import { TopHeader } from "@/components/student/TopHeader";
+import { DashboardFooter } from "@/components/student/DashboardFooter";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     const { user, loading } = useAuthStore();
@@ -21,7 +22,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
     if (loading || !user) {
         return (
-            <div className="min-h-screen bg-eggshell flex items-center justify-center">
+            <div className="min-h-screen bg-[#f8f6f0] flex items-center justify-center">
                 <div className="w-12 h-12 border-4 border-jungle border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
@@ -39,14 +40,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     }
 
     return (
-        <div className="flex min-h-screen bg-[#F8F9FA]">
+        <div className="flex min-h-screen bg-[#f8f6f0]">
             <DashboardSidebar />
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <TopHeader />
-                <main className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                    <div className="max-w-7xl mx-auto animate-in fade-in duration-500">
-                        {children}
+                <main className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+                    <div className="p-8 flex-1">
+                        <div className="max-w-7xl mx-auto animate-in fade-in duration-500">
+                            {children}
+                        </div>
                     </div>
+                    <DashboardFooter />
                 </main>
             </div>
 

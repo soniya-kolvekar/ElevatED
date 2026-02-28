@@ -1,190 +1,244 @@
 "use client";
 
 import { useAuthStore } from "@/store/useAuthStore";
-import { ResumeUpload } from "@/components/student/ResumeUpload";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { motion } from "framer-motion";
 import {
-    PieChart, Pie, Cell, ResponsiveContainer,
-    BarChart, Bar, XAxis, YAxis, Tooltip,
-} from 'recharts';
-import {
-    Download,
+    Eye,
+    Database,
+    Network,
+    Target,
+    Zap,
+    Briefcase,
     TrendingUp,
+    ShieldCheck,
     ArrowUpRight,
-    Building2,
-    AlertCircle,
-    ChevronRight,
-    Trophy
+    CheckCircle2,
+    Code
 } from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { getStudentDashboardData } from "@/lib/student-data";
-import { cn } from "@/lib/utils";
 
-export default function StudentDashboard() {
+
+const readinessData = [
+    { month: "MONTH 1", value: 45, target: 50 },
+    { month: "MONTH 2", value: 55, target: 60 },
+    { month: "MONTH 3", value: 50, target: 65 },
+    { month: "MONTH 4", value: 65, target: 75 },
+    { month: "MONTH 5", value: 78, target: 82 },
+    { month: "TARGET", value: 82, target: 95 },
+];
+
+export default function PlatformOverview() {
     const { user } = useAuthStore();
-
-    if (!user) return null;
-
-    const hasResume = !!user.resumeUrl;
-
-    if (!hasResume) {
-        return (
-            <div className="min-h-screen bg-eggshell p-8 flex flex-col items-center justify-center text-center">
-                <div className="max-w-2xl w-full space-y-8">
-                    <div className="space-y-4">
-                        <h1 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight">
-                            Personalize Your <span className="text-jungle">Future</span>.
-                        </h1>
-                        <p className="text-lg text-gray-600">
-                            Upload your resume to unlock your AI-powered ATX score,
-                            skills analysis, and smart company matching.
-                        </p>
-                    </div>
-
-                    <div className="bg-white p-2 rounded-3xl shadow-soft">
-                        <ResumeUpload />
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                        <div className="p-4">
-                            <div className="text-2xl font-bold text-jungle">95%</div>
-                            <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Parsing Accuracy</div>
-                        </div>
-                        <div className="p-4 border-x border-gray-100">
-                            <div className="text-2xl font-bold text-tropicalTeal">Instant</div>
-                            <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Score Setup</div>
-                        </div>
-                        <div className="p-4">
-                            <div className="text-2xl font-bold text-amber-500">Tier-1</div>
-                            <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Opportunities</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     const data = getStudentDashboardData(user);
 
     return (
-        <div className="space-y-8 pb-12">
-            {/* Page Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black text-gray-900">Student Dashboard</h1>
-                    <p className="text-gray-500 mt-1">
-                        Welcome back, <span className="font-bold text-gray-700">{user.name.split(' ')[0]}</span>.
-                        Your <span className="text-jungle font-bold">ATX Score</span> improved by {data.atxScoreDelta}% this week!
-                    </p>
+        <div className="space-y-12 pb-20 max-w-7xl mx-auto">
+            {/* Header Section */}
+            <div className="space-y-4">
+                <span className="px-3 py-1 bg-jungle/5 text-jungle text-[10px] font-black uppercase tracking-widest rounded-full border border-jungle/10">
+                    Deep Dive
+                </span>
+                <h1 className="text-5xl font-black text-gray-900 leading-tight">
+                    Advanced Placement <br /> Intelligence
+                </h1>
+                <p className="text-lg text-gray-500 max-w-2xl font-medium">
+                    Explore the engine driving next-gen campus placements. From AI-driven resume parsing to predictive readiness modeling.
+                </p>
+            </div>
+
+            {/* AI Resume Intelligence Section */}
+            <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-jungle/10 flex items-center justify-center text-jungle">
+                        <Zap size={18} />
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-900">AI Resume Intelligence</h2>
                 </div>
-                <Button variant="outline" className="bg-white border-gray-100 text-gray-600 gap-2 h-11 px-6 rounded-xl hover:bg-gray-50">
-                    <Download className="w-4 h-4" />
-                    Download Readiness Report
-                </Button>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[
+                        {
+                            title: "Visual Parsing",
+                            description: "Proprietary OCR and spatial analysis to convert complex, multi-column visual resumes into structured JSON data without losing context.",
+                            icon: Eye
+                        },
+                        {
+                            title: "Entity Extraction",
+                            description: "Identifies key experience, education milestones, and extracurricular achievements using Named Entity Recognition (NER).",
+                            icon: Database
+                        },
+                        {
+                            title: "Skill Mapping",
+                            description: "Maps candidate skills to the ATX standard industry taxonomy, normalizing varied terminology across different engineering domains.",
+                            icon: Network
+                        }
+                    ].map((feature, idx) => (
+                        <Card key={idx} className="p-8 border-gray-100 hover:border-jungle/20 transition-all hover:shadow-xl group">
+                            <div className="w-full h-40 bg-gray-50 rounded-2xl mb-6 flex items-center justify-center group-hover:bg-jungle/5 transition-colors">
+                                <feature.icon size={48} className="text-gray-300 group-hover:text-jungle transition-all duration-500 group-hover:scale-110" />
+                            </div>
+                            <h3 className="text-lg font-black text-gray-900 mb-3">{feature.title}</h3>
+                            <p className="text-sm text-gray-500 leading-relaxed font-medium">
+                                {feature.description}
+                            </p>
+                        </Card>
+                    ))}
+                </div>
             </div>
 
-            {/* Top Metrics Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Current XP Card */}
-                <Card className="relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                        <Trophy size={120} />
+            {/* ATX Score Engine Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="lg:col-span-7 space-y-8">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-jungle/10 flex items-center justify-center text-jungle">
+                            <Target size={18} />
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900">ATX Score Engine</h2>
                     </div>
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Current XP</p>
-                    <div className="flex items-baseline gap-2 mb-1">
-                        <h2 className="text-3xl font-black text-gray-900">{data.xp.toLocaleString()}</h2>
-                        <span className="text-sm font-bold text-jungle">+{data.atxScoreDelta * 240} this month</span>
-                    </div>
-                    <p className="text-xs text-gray-400 font-medium mb-6">XP to {data.tier} Tier</p>
 
-                    <div className="space-y-2">
-                        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <motion.div
-                                className="h-full bg-jungle"
-                                initial={{ width: 0 }}
-                                animate={{ width: `${(data.xp / data.xpToNextTier) * 100}%` }}
-                                transition={{ duration: 1 }}
-                            />
-                        </div>
-                        <div className="flex justify-between text-[10px] font-bold text-gray-400">
-                            <span>{Math.round((data.xp / data.xpToNextTier) * 100)}%</span>
-                            <span>{data.xpToNextTier.toLocaleString()} XP</span>
-                        </div>
-                    </div>
-                </Card>
+                    <p className="text-gray-500 font-medium leading-relaxed">
+                        The Advanced Talent Index (ATX) uses a multi-weighted algorithm to determine placement viability. Our engine calculates scores based on five core pillars.
+                    </p>
 
-                {/* ATX Talent Index Card */}
-                <Card className="flex flex-col items-center justify-center py-4">
-                    <div className="flex justify-between w-full mb-1">
-                        <div>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">ATX Talent Index</p>
-                            <h2 className="text-3xl font-black text-gray-900">{data.atxScore}</h2>
-                            <p className="text-[10px] text-gray-400 font-medium">Top 15% of Senior Students</p>
-                        </div>
-                        <div className="h-24 w-24 relative">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={[{ value: data.atxScore }, { value: 1000 - data.atxScore }]}
-                                        innerRadius={28}
-                                        outerRadius={38}
-                                        startAngle={90}
-                                        endAngle={-270}
-                                        dataKey="value"
-                                        stroke="none"
-                                    >
-                                        <Cell fill="#4a7c59" />
-                                        <Cell fill="#f3f4f6" />
-                                    </Pie>
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-sm font-black text-jungle">{data.atxScore}</span>
-                                <span className="text-[8px] font-bold text-gray-300 uppercase">Points</span>
+                    <div className="space-y-6 max-w-xl">
+                        {[
+                            { label: "Technical Proficiency", weight: "40%", score: 85, color: "bg-jungle" },
+                            { label: "Academic Consistency", weight: "25%", score: 72, color: "bg-jungle/60" },
+                            { label: "Communication & Soft Skills", weight: "15%", score: 90, color: "bg-emerald-500/40" },
+                            { label: "Project Depth", weight: "20%", score: 65, color: "bg-gray-200" }
+                        ].map((metric, idx) => (
+                            <div key={idx} className="space-y-2">
+                                <div className="flex justify-between items-center text-xs font-black uppercase tracking-wider">
+                                    <span className="text-gray-900">{metric.label}</span>
+                                    <span className="text-gray-400">{metric.weight} Weightage</span>
+                                </div>
+                                <div className="h-6 w-full bg-gray-50 rounded-lg overflow-hidden border border-gray-100 p-1">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${metric.score}%` }}
+                                        className={`h-full rounded-md ${metric.color}`}
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        ))}
                     </div>
-                </Card>
+                </div>
 
-                {/* Global Rank Card */}
-                <Card>
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Global Rank</p>
-                    <h2 className="text-3xl font-black text-gray-900">#{data.globalRank.toLocaleString()}</h2>
-                    <div className="grid grid-cols-2 gap-4 mt-6">
-                        <div className="bg-jungle/5 rounded-xl p-3 border border-jungle/10">
-                            <div className="flex items-center gap-1 text-jungle mb-0.5">
-                                <ArrowUpRight className="w-3 h-3" />
-                                <span className="text-[10px] font-black uppercase tracking-tighter">UP {data.campusRankDelta}</span>
+                <div className="lg:col-span-5 bg-jungle/5 rounded-[2rem] p-8 border border-jungle/10 space-y-6">
+                    <h3 className="text-xs font-black text-jungle uppercase tracking-[0.3em]">Score Tiers</h3>
+                    <div className="space-y-4">
+                        {[
+                            { tier: "Platinum Tier (850+)", desc: "Top 5% of candidates. Direct track to Tier-1 product firms.", bg: "bg-amber-50", text: "P" },
+                            { tier: "Gold Tier (700-849)", desc: "Strong foundation. Ideal for core engineering & fintech.", bg: "bg-emerald-50", text: "G" },
+                            { tier: "Silver Tier (500-699)", desc: "Skilled workforce. Ready for service-based scale-ups.", bg: "bg-gray-50", text: "S" }
+                        ].map((tier, idx) => (
+                            <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
+                                <div className={`w-12 h-12 rounded-xl ${tier.bg} flex items-center justify-center text-xl font-black text-gray-900/20`}>
+                                    {tier.text}
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-black text-gray-900">{tier.tier}</h4>
+                                    <p className="text-[10px] text-gray-400 font-bold">{tier.desc}</p>
+                                </div>
                             </div>
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Campus</p>
-                        </div>
-                        <div className="bg-tropicalTeal/5 rounded-xl p-3 border border-tropicalTeal/10">
-                            <div className="flex items-center gap-1 text-tropicalTeal mb-0.5">
-                                <ArrowUpRight className="w-3 h-3" />
-                                <span className="text-[10px] font-black uppercase tracking-tighter">UP {data.nationalRankDelta}</span>
-                            </div>
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">National</p>
-                        </div>
+                        ))}
                     </div>
+                </div>
+            </div>
+
+            {/* Smart Opportunity Matching Section */}
+            <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-jungle/10 flex items-center justify-center text-jungle">
+                        <Briefcase size={18} />
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-900">Smart Opportunity Matching</h2>
+                </div>
+
+                <Card className="overflow-hidden border-gray-100 p-0">
+                    <table className="w-full text-left">
+                        <thead className="bg-gray-50/50 border-b border-gray-100">
+                            <tr>
+                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Company</th>
+                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Role</th>
+                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Compatibility</th>
+                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {[
+                                { name: "NexaSystems", role: "Full Stack SDE", comp: "98%", status: "Invited", statusColor: "bg-blue-50 text-blue-600" },
+                                { name: "CloudPulse", role: "DevOps Engineer", comp: "92%", status: "Open", statusColor: "bg-gray-100 text-gray-500" },
+                                { name: "AuraData", role: "Data Scientist", comp: "76%", status: "Open", statusColor: "bg-gray-100 text-gray-500" }
+                            ].map((job, idx) => (
+                                <tr key={idx} className="hover:bg-gray-50/50 transition-colors group">
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-black text-gray-400 group-hover:bg-jungle group-hover:text-white transition-all">
+                                                {job.name[0]}
+                                            </div>
+                                            <span className="font-black text-gray-900">{job.name}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6 text-sm font-bold text-gray-500">{job.role}</td>
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-black text-jungle">{job.comp}</span>
+                                            <span className="px-2 py-0.5 bg-jungle/5 text-jungle text-[8px] font-black uppercase rounded">Best Fit</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${job.statusColor}`}>
+                                            {job.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-6 text-right">
+                                        <button className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-jungle transition-colors">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </Card>
             </div>
 
-            {/* Middle Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Readiness Growth Chart */}
-                <Card className="lg:col-span-2">
-                    <div className="flex items-center justify-between mb-8">
-                        <div>
-                            <h3 className="text-lg font-black text-gray-900 leading-none">Readiness Growth</h3>
-                            <p className="text-xs text-gray-400 font-medium mt-1">Placement readiness score over the last 6 months</p>
+            {/* Readiness Predictor Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                <Card className="lg:col-span-8 p-10 border-gray-100">
+                    <div className="flex items-center justify-between mb-12">
+                        <div className="flex items-center gap-3">
+                            <TrendingUp className="text-jungle" size={20} />
+                            <h2 className="text-xl font-bold text-gray-900">Readiness Predictor</h2>
                         </div>
-                        <div className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Last 6 Months</div>
+                        <div className="text-right">
+                            <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Predicted Probability</p>
+                            <span className="text-4xl font-black text-jungle">82%</span>
+                        </div>
                     </div>
 
-                    <div className="h-[280px] w-full mt-4">
+                    <div className="h-64 w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={data.readinessGrowth} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                            <LineChart data={readinessData}>
+                                <Line
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#4a7c59"
+                                    strokeWidth={4}
+                                    dot={false}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="target"
+                                    stroke="#C4D7CC"
+                                    strokeWidth={2}
+                                    strokeDasharray="5 5"
+                                    dot={false}
+                                />
                                 <XAxis
                                     dataKey="month"
                                     axisLine={false}
@@ -192,129 +246,51 @@ export default function StudentDashboard() {
                                     tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
                                     dy={10}
                                 />
-                                <YAxis hide domain={[0, 100]} />
-                                <Tooltip
-                                    cursor={{ fill: '#f9fafb' }}
-                                    content={({ active, payload }) => {
-                                        if (active && payload && payload.length) {
-                                            return (
-                                                <div className="bg-white p-3 rounded-xl shadow-xl border border-gray-50">
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{payload[0].payload.month}</p>
-                                                    <p className="text-sm font-black text-jungle">{payload[0].value}% Readiness</p>
-                                                </div>
-                                            );
-                                        }
-                                        return null;
-                                    }}
-                                />
-                                <Bar
-                                    dataKey="value"
-                                    radius={[6, 6, 6, 6]}
-                                    barSize={40}
-                                >
-                                    {data.readinessGrowth.map((entry, index) => (
-                                        <Cell
-                                            key={`cell-${index}`}
-                                            fill={index === data.readinessGrowth.length - 1 ? '#4a7c59' : '#C4D7CC'}
-                                            className="transition-all duration-300 hover:opacity-80"
-                                        />
-                                    ))}
-                                </Bar>
-                            </BarChart>
+                                <YAxis hide />
+                                <Tooltip />
+                            </LineChart>
                         </ResponsiveContainer>
                     </div>
+                    <p className="mt-8 text-xs text-gray-400 italic font-medium leading-relaxed">
+                        Historical data suggests an 82% placement probability within 45 days based on your current ATX trajectory.
+                    </p>
                 </Card>
 
-                {/* Recommended Companies List */}
-                <Card className="flex flex-col">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-black text-gray-900 leading-none">Recommended Companies</h3>
-                        <button className="text-[10px] font-bold text-jungle uppercase tracking-widest hover:underline">View All</button>
-                    </div>
-
-                    <div className="space-y-4 flex-1">
-                        {data.recommendedCompanies.map((company) => (
-                            <div key={company.name} className="flex items-center gap-4 group">
-                                <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                                    <Building2 className="w-5 h-5 text-gray-400" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <h4 className="text-sm font-bold text-gray-900 truncate">{company.name}</h4>
-                                        <span className="text-[9px] font-black text-jungle uppercase shrink-0">{company.match}% Match</span>
-                                    </div>
-                                    <p className="text-[10px] text-gray-400 font-bold truncate mb-2">{company.role}</p>
-                                    <div className="h-1 w-full bg-gray-50 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-jungle rounded-full"
-                                            style={{ width: `${company.match}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </Card>
-            </div>
-
-            {/* Bottom Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Skill Gap Analysis */}
-                <Card className="lg:col-span-2">
-                    <h3 className="text-lg font-black text-gray-900 mb-6">Skill Gap Analysis</h3>
-                    <div className="space-y-6">
-                        {data.skills.map((skill) => (
-                            <div key={skill.name} className="space-y-2">
-                                <div className="flex justify-between items-end">
-                                    <div>
-                                        <p className="text-sm font-bold text-gray-800">{skill.name}</p>
-                                        {skill.needsImprovement && (
-                                            <p className="text-[10px] text-orange-500 font-bold flex items-center gap-1 mt-0.5">
-                                                <AlertCircle size={10} /> Needs improvement for High-Match roles
-                                            </p>
-                                        )}
-                                    </div>
-                                    <span className={cn(
-                                        "text-sm font-black",
-                                        skill.needsImprovement ? "text-orange-500" : "text-jungle"
-                                    )}>{skill.score}%</span>
-                                </div>
-                                <div className="h-2 w-full bg-gray-50 rounded-full overflow-hidden">
-                                    <motion.div
-                                        className={cn(
-                                            "h-full rounded-full",
-                                            skill.needsImprovement ? "bg-orange-400" : "bg-jungle"
-                                        )}
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${skill.score}%` }}
-                                        transition={{ duration: 1.2 }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </Card>
-
-                {/* Improvement CTA Card */}
-                <div className="bg-jungle rounded-3xl p-6 text-white relative overflow-hidden flex flex-col justify-between group cursor-pointer hover:shadow-2xl hover:shadow-jungle/20 transition-all duration-500">
-                    <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-                    <div className="relative z-10">
-                        <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-md border border-white/10">
-                            <TrendingUp className="w-6 h-6" />
+                <div className="lg:col-span-4 bg-jungle rounded-[2rem] p-8 text-white flex flex-col justify-between">
+                    <div>
+                        <div className="flex items-center gap-3 mb-6">
+                            <ShieldCheck size={24} className="text-emerald-400" />
+                            <h3 className="text-xl font-black">Policy Engine</h3>
                         </div>
-                        <h3 className="text-xl font-black mb-2 leading-tight">Want to improve your odds?</h3>
-                        <p className="text-sm text-eggshell/70 font-medium">
-                            Use the Improvement Simulator to map out your shortest path to your dream company.
+                        <p className="text-sm text-eggshell/60 leading-relaxed mb-8">
+                            The brain behind eligibility logic. Our Policy Engine ensures fair, rule-based matching that aligns with both university guidelines and corporate requirements.
                         </p>
+                        <div className="space-y-4">
+                            {[
+                                "Dynamic Eligibility Checks",
+                                "Conflict Resolution Logic",
+                                "Fair-Share Distribution"
+                            ].map((item, idx) => (
+                                <div key={idx} className="flex items-center gap-3">
+                                    <CheckCircle2 size={16} className="text-emerald-400" />
+                                    <span className="text-xs font-bold text-white/90">{item}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    <button className="mt-8 bg-white text-jungle w-full py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 group-hover:gap-4 transition-all overflow-hidden relative">
-                        <span className="relative z-10">Launch Simulator</span>
-                        <ChevronRight className="w-4 h-4 relative z-10" />
-                        <div className="absolute inset-0 bg-eggshell translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                    </button>
+                    <div className="mt-12 bg-black/20 rounded-2xl p-6 border border-white/5 space-y-4">
+                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Active Logic</span>
+                        <div className="font-mono text-[10px] text-emerald-400/80 leading-relaxed uppercase whitespace-pre-wrap">
+                            IF (ATX_SCORE {">"} 750) AND (BACKLOGS == 0)<br />
+                            ENABLE(PREMIUM_ROLES)<br />
+                            PRIORITY = DYNAMIC_RANK
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            
         </div>
     );
 }
