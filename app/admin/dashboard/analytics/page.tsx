@@ -75,7 +75,7 @@ export default function PlacementAnalytics() {
             applied: { val: 90, color: "bg-[#e6ecd8]", text: "text-[#1d3326]" },
             shortlisted: { val: 40, color: "bg-[#f1f3e8]", text: "text-[#1d3326]" },
             placed: { val: 32, color: "bg-[#e6ecd8]", text: "text-[#1d3326]" }
-        },
+        }
     ];
 
     return (
@@ -212,7 +212,6 @@ export default function PlacementAnalytics() {
                         </p>
                     </div>
                 </div>
-
             </div>
 
             {/* Bottom Row */}
@@ -314,6 +313,7 @@ export default function PlacementAnalytics() {
                     © 2024 ElevatED AI-Powered Campus Placement ERP. All analytics are generated based on active drive data.
                 </p>
             </div>
-        </div>
+
+        </div >
     );
 }
