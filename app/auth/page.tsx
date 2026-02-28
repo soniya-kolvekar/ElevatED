@@ -49,9 +49,27 @@ function AuthContent() {
             } else {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-                // Bypass Firestore completely and default to admin
-                const fallbackRole = "admin";
-                setUser({ uid: userCredential.user.uid, email: userCredential.user.email || email, name: "Admin User", role: fallbackRole });
+                // Fetch actual role from Firestore
+                try {
+                    const userData = await getUserDocument(userCredential.user.uid);
+                    if (userData && userData.role) {
+                        setUser({
+                            uid: userCredential.user.uid,
+                            email: userCredential.user.email || email,
+                            name: userData.name || "User",
+                            role: userData.role
+                        });
+                        setAuthCookie(userData.role);
+                        router.push(`/${userData.role}/dashboard`);
+                        return; // Exit early on success
+                    }
+                } catch (firestoreError) {
+                    console.error("Failed to fetch user role, defaulting...", firestoreError);
+                }
+
+                // Fallback if Firestore fetch fails
+                const fallbackRole = "student";
+                setUser({ uid: userCredential.user.uid, email: userCredential.user.email || email, name: "User", role: fallbackRole });
                 setAuthCookie(fallbackRole);
                 router.push(`/${fallbackRole}/dashboard`);
             }
