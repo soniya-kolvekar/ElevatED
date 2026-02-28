@@ -6,7 +6,6 @@ import {
     CheckCircleIcon, InformationCircleIcon
 } from "@heroicons/react/24/outline";
 import { RefreshCcw } from "lucide-react";
-import { useAdminStore } from "@/store/useAdminStore";
 
 export default function AuditLogs() {
     const handleExport = (filename: string) => {
@@ -25,8 +24,39 @@ export default function AuditLogs() {
     const [actionFilter, setActionFilter] = useState("Policy Override");
     const [roleFilter, setRoleFilter] = useState("Admin & Recruiter");
 
-    // Global Store Data
-    const { auditLogs } = useAdminStore();
+    // Mock Audit Data matching new design
+    const auditLogs = [
+        {
+            timestamp: "2023-10-27 14:23:01",
+            initials: "JD", user: "John Doe", role: "RECRUITER (MICROSOFT)",
+            category: "POLICY_OVERRIDE", categoryColor: "bg-yellow-100/80 text-yellow-800",
+            target: "Slot #42: Tech Interview"
+        },
+        {
+            timestamp: "2023-10-27 14:15:45",
+            initials: "AS", user: "Arjun Sharma", role: "STUDENT (CS-24)",
+            category: "RESUME_UPLOAD", categoryColor: "bg-blue-100/80 text-blue-800",
+            target: "v2_final_placement.pdf"
+        },
+        {
+            timestamp: "2023-10-27 14:02:11",
+            initials: "SA", user: "Super Admin", role: "ADMIN CONSOLE",
+            category: "ACCESS_GRANT", categoryColor: "bg-red-100/80 text-red-800",
+            target: "Role: TPO_JUNIOR"
+        },
+        {
+            timestamp: "2023-10-27 13:58:30",
+            initials: "ML", user: "Meta Labs", role: "RECRUITER BOT",
+            category: "BATCH_UPDATE", categoryColor: "bg-purple-100/80 text-purple-800",
+            target: "Student ATX Scores (542 records)"
+        },
+        {
+            timestamp: "2023-10-27 13:45:12",
+            initials: "PK", user: "Priya Kapoor", role: "STUDENT (EC-23)",
+            category: "POLICY_OVERRIDE", categoryColor: "bg-yellow-100/80 text-yellow-800",
+            target: "Late Registration: Google Inc."
+        },
+    ];
 
     return (
         <div className="w-full pb-10 space-y-6">

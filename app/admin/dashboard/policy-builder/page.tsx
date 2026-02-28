@@ -7,7 +7,6 @@ export default function PolicyBuilder() {
     const [cgpa, setCgpa] = useState(7.5);
     const [jobPolicy, setJobPolicy] = useState(true);
     const [atxGating, setAtxGating] = useState(false);
-
     const [branches, setBranches] = useState([
         { name: "CSE", active: true },
         { name: "ECE", active: true },
@@ -239,7 +238,7 @@ export default function PolicyBuilder() {
                                     <span>{cseCount} Students</span>
                                 </div>
                                 <div className="w-full h-2.5 bg-[#f4f7f5] rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#457c5f] w-[80%] rounded-full transition-all duration-300"></div>
+                                    <div className="h-full bg-[#457c5f]" style={{ width: `${(cseCount / totalEligible) * 100}%` }}></div>
                                 </div>
                             </div>
                             <div>
@@ -248,7 +247,7 @@ export default function PolicyBuilder() {
                                     <span>{eceCount} Students</span>
                                 </div>
                                 <div className="w-full h-2.5 bg-[#f4f7f5] rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#8b5cf6] w-[65%] rounded-full transition-all duration-300"></div>
+                                    <div className="h-full bg-[#8b5cf6]" style={{ width: `${(eceCount / totalEligible) * 100}%` }}></div>
                                 </div>
                             </div>
                             <div>
@@ -257,7 +256,7 @@ export default function PolicyBuilder() {
                                     <span>{itCount} Students</span>
                                 </div>
                                 <div className="w-full h-2.5 bg-[#f4f7f5] rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#f59e0b] w-[45%] rounded-full transition-all duration-300"></div>
+                                    <div className="h-full bg-[#f59e0b]" style={{ width: `${(itCount / totalEligible) * 100}%` }}></div>
                                 </div>
                             </div>
                         </div>

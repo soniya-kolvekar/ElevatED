@@ -7,20 +7,14 @@ import {
     ArrowDownTrayIcon,
     UserGroupIcon,
     LightBulbIcon,
+    DocumentDuplicateIcon,
     ShieldExclamationIcon,
     InformationCircleIcon,
     ChartBarIcon,
     ShieldCheckIcon
 } from "@heroicons/react/24/outline";
-import { useRouter } from "next/navigation";
-import { useAdminStore } from "@/store/useAdminStore";
 
 export default function AnalyticsDashboard() {
-    const router = useRouter();
-    const { auditLogs } = useAdminStore();
-    // Get the top 4 most recent audits
-    const recentAudits = auditLogs.slice(0, 4);
-
     const handleExport = (filename: string) => {
         const csvContent = "data:text/csv;charset=utf-8,Demo Data\n1,2,3";
         const encodedUri = encodeURI(csvContent);
@@ -35,6 +29,7 @@ export default function AnalyticsDashboard() {
     const [cgpa, setCgpa] = useState(7.5);
     const [backlogLimit, setBacklogLimit] = useState("1");
     const [activeTab, setActiveTab] = useState('analytics');
+
     // Mock Chart Data
     const chartData = [
         { name: 'CSE', engagement: 80, selection: 60 },
@@ -45,6 +40,14 @@ export default function AnalyticsDashboard() {
         { name: 'EEE', engagement: 35, selection: 20 },
         { name: 'AI/ML', engagement: 90, selection: 75 },
         { name: 'DS', engagement: 85, selection: 65 },
+    ];
+
+    // Mock Recent Audits
+    const recentAudits = [
+        { action: "Policy Modified: CGPA Threshold", user: "admin_aris", time: "10:45 AM, 24 Oct", status: "SUCCESS" },
+        { action: "Bulk Student Export", user: "coord_smith", time: "09:12 AM, 24 Oct", status: "PENDING" },
+        { action: "ATX Scoring Recalibration", user: "system_ai", time: "04:30 AM, 24 Oct", status: "SUCCESS" },
+        { action: "Failed Login Attempt", user: "ext_user_44", time: "02:15 AM, 24 Oct", status: "ALERT" },
     ];
 
     const getStatusColor = (status: string) => {
@@ -103,23 +106,23 @@ export default function AnalyticsDashboard() {
                     </div>
                 </div>
 
-                {/* Navigation Tabs */}
-                <div className="flex gap-4 mb-8 border-b border-gray-200 pb-4 overflow-x-auto">
+                {/* Navigation Tabs (Simulated) */}
+                <div className="flex gap-4 mb-8 border-b border-gray-200 pb-4 overflow-x-auto lg:col-span-2">
                     <button
-                        onClick={() => router.push('/admin/dashboard/analytics')}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all ${activeTab === 'analytics' ? 'bg-[#457c5f] text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-[#f8f6f0]'}`}
+                        onClick={() => setActiveTab('analytics')}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all ${activeTab === 'analytics' ? 'bg-[#457c5f] text-white' : 'bg-white text-gray-500 hover:bg-[#f8f6f0]'}`}
                     >
                         <ChartBarIcon className="w-5 h-5" /> Institutional Analytics
                     </button>
                     <button
-                        onClick={() => router.push('/admin/dashboard/policy-builder')}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all ${activeTab === 'policies' ? 'bg-[#457c5f] text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-[#f8f6f0]'}`}
+                        onClick={() => setActiveTab('policies')}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all ${activeTab === 'policies' ? 'bg-[#457c5f] text-white' : 'bg-white text-gray-500 hover:bg-[#f8f6f0]'}`}
                     >
                         <ShieldCheckIcon className="w-5 h-5" /> Global Policy Engine
                     </button>
                     <button
-                        onClick={() => router.push('/admin/dashboard/audit-logs')}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all ${activeTab === 'audit' ? 'bg-[#457c5f] text-white shadow-soft' : 'bg-white text-gray-500 hover:bg-[#f8f6f0]'}`}
+                        onClick={() => setActiveTab('audit')}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all ${activeTab === 'audit' ? 'bg-[#457c5f] text-white' : 'bg-white text-gray-500 hover:bg-[#f8f6f0]'}`}
                     >
                         <DocumentTextIcon className="w-5 h-5" /> System Audit Logs
                     </button>
@@ -138,7 +141,7 @@ export default function AnalyticsDashboard() {
             </div>
 
             {/* Middle Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
 
                 {/* Policy Configuration Card */}
                 <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-[#f0f3f1] col-span-1">
@@ -250,10 +253,10 @@ export default function AnalyticsDashboard() {
             </div>
 
             {/* Bottom Row */}
-            <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-[#f0f3f1]">
+            <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-[#f0f3f1] mt-6">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-[15px] font-bold text-[#0a192f]">Recent System Audit</h2>
-                    <button onClick={() => router.push("/admin/dashboard/audit-logs")} className="text-[12px] font-bold text-[#457c5f] hover:text-[#346048]">
+                    <button onClick={() => alert("Loading full audit log history...")} className="text-[12px] font-bold text-[#457c5f] hover:text-[#346048]">
                         View All Logs
                     </button>
                 </div>
@@ -269,17 +272,14 @@ export default function AnalyticsDashboard() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#f0f3f1]">
-                            {recentAudits.map((audit) => (
-                                <tr key={audit.id} className="hover:bg-[#f8fbfa] transition-colors">
-                                    <td className="py-4 pr-4">
-                                        <div className="text-[13px] font-bold text-[#0a192f]">{audit.category.replace('_', ' ')}</div>
-                                        <div className="text-[11px] font-medium text-gray-500 mt-0.5">{audit.target}</div>
-                                    </td>
+                            {recentAudits.map((audit, idx) => (
+                                <tr key={idx} className="hover:bg-[#f8fbfa] transition-colors">
+                                    <td className="py-4 text-[13px] font-bold text-[#0a192f] pr-4">{audit.action}</td>
                                     <td className="py-4 text-[12px] font-medium text-gray-600">{audit.user}</td>
-                                    <td className="py-4 text-[12px] font-medium text-gray-500">{audit.timestamp}</td>
+                                    <td className="py-4 text-[12px] font-medium text-gray-500">{audit.time}</td>
                                     <td className="py-4 text-right">
-                                        <span className={`px-2.5 py-1 rounded-[6px] text-[10px] font-black tracking-widest uppercase bg-[#eefcf3] text-[#1eb463]`}>
-                                            SUCCESS
+                                        <span className={`px-2.5 py-1 rounded-[6px] text-[10px] font-black tracking-widest uppercase ${getStatusColor(audit.status)}`}>
+                                            {audit.status}
                                         </span>
                                     </td>
                                 </tr>
@@ -290,11 +290,11 @@ export default function AnalyticsDashboard() {
             </div>
 
             {/* Footer */}
-            <div className="text-center pt-2">
+            <div className="text-center pt-8">
                 <p className="text-[10px] font-medium text-gray-400">
                     © 2024 ElevatED AI-Powered Campus Placement ERP. All analytics are generated based on active drive data.
                 </p>
             </div>
-        </div >
+        </div>
     );
 }
