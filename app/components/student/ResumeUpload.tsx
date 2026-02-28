@@ -7,9 +7,11 @@ import { Card } from "@/components/ui/Card";
 import { useAuthStore } from "@/store/useAuthStore";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
+import { useRouter } from "next/navigation";
 
 export function ResumeUpload() {
     const { user, setUser } = useAuthStore();
+    const router = useRouter();
     const [file, setFile] = useState<File | null>(null);
     const [githubUrl, setGithubUrl] = useState("");
     const [portfolioUrl, setPortfolioUrl] = useState("");
@@ -125,6 +127,12 @@ export function ResumeUpload() {
 
             setUser(updatedUser);
             setStatus("success");
+
+            // Automatically redirect to dashboard after a short delay
+            setTimeout(() => {
+                router.push("/student/dashboard");
+            }, 1500);
+
         } catch (err: any) {
             setErrorMessage(err.message || "An unexpected error occurred.");
             setStatus("error");
@@ -140,6 +148,7 @@ export function ResumeUpload() {
                 <h3 className="text-xl font-bold text-green-800 mb-2">Resume Analyzed Successfully!</h3>
                 <p className="text-green-700 text-sm mb-6">We've extracted your skills, projects, and calculated your initial ATX score.</p>
                 <div className="flex gap-4">
+                    <Button onClick={() => router.push('/student/dashboard')} className="bg-green-600 hover:bg-green-700 text-white">Go to Dashboard</Button>
                     <Button variant="outline" onClick={() => setStatus("idle")}>Update Resume</Button>
                 </div>
             </Card>

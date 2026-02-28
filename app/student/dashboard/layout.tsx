@@ -20,19 +20,20 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         }
     }, [user, loading, router]);
 
+    // If the user has no resume, they must upload one first on the insights page
+    // Redirect them there if they are anywhere else in the dashboard
+    useEffect(() => {
+        if (user && !loading && !hasResume && pathname !== "/student/dashboard/insights") {
+            router.push("/student/dashboard/insights");
+        }
+    }, [user, loading, hasResume, pathname, router]);
+
     if (loading || !user) {
         return (
             <div className="min-h-screen bg-[#f8f6f0] flex items-center justify-center">
                 <div className="w-12 h-12 border-4 border-jungle border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
-    }
-
-    // If the user is on the dashboard root and has no resume, we show the uplifted upload screen (no sidebar)
-    // But if they are on a sub-page without a resume, we redirect them back to the dashboard root
-    if (!hasResume && pathname !== "/student/dashboard") {
-        router.push("/student/dashboard");
-        return null;
     }
 
     if (!hasResume) {
