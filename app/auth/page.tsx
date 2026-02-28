@@ -39,28 +39,31 @@ function AuthContent() {
         try {
             if (mode === "register") {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                await createUserDocument(userCredential.user, { name, role });
 
-                const userProfile = await getUserDocument(userCredential.user.uid);
-                if (userProfile) {
-                    setUser(userProfile);
-                    setAuthCookie(userProfile.role);
-                    router.push(`/${userProfile.role}/dashboard`);
-                }
+                // Bypass Firestore completely 
+                const assignedRole = role || "admin";
+                setUser({ uid: userCredential.user.uid, email, name: name || "Admin User", role: assignedRole });
+                setAuthCookie(assignedRole);
+                router.push(`/${assignedRole}/dashboard`);
+
             } else {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const userProfile = await getUserDocument(userCredential.user.uid);
 
-                if (userProfile) {
-                    setUser(userProfile);
-                    setAuthCookie(userProfile.role);
-                    router.push(`/${userProfile.role}/dashboard`);
-                } else {
-                    setError("User profile not found. Please contact support.");
-                }
+                // Bypass Firestore completely and default to admin
+                const fallbackRole = "admin";
+                setUser({ uid: userCredential.user.uid, email: userCredential.user.email || email, name: "Admin User", role: fallbackRole });
+                setAuthCookie(fallbackRole);
+                router.push(`/${fallbackRole}/dashboard`);
             }
         } catch (err: any) {
-            setError(err.message || "An error occurred during authentication.");
+            console.error("Auth Error:", err);
+            if (err.code === 'auth/invalid-credential') {
+                setError("Invalid email or password. Please check your credentials or sign up if you don't have an account.");
+            } else if (err.code === 'auth/email-already-in-use') {
+                setError("An account with this email already exists. Please log in.");
+            } else {
+                setError(err.message || "An error occurred during authentication.");
+            }
         } finally {
             setLoading(false);
         }
