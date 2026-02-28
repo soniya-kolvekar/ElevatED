@@ -9,6 +9,7 @@ export interface UserProfile {
     name: string;
     displayName?: string;
     role: Role;
+    avatarUrl?: string;
     cgpa?: number;
     branch?: string;
     skills?: string[];
@@ -77,4 +78,17 @@ export async function getUserDocument(uid: string) {
         return snapshot.data() as UserProfile;
     }
     return null;
+}
+
+export async function updateUserDocument(uid: string, data: Partial<UserProfile>) {
+    const userRef = doc(db, "users", uid);
+    try {
+        await setDoc(userRef, {
+            ...data,
+            updatedAt: serverTimestamp()
+        }, { merge: true });
+    } catch (error) {
+        console.error("Error updating user document", error);
+        throw error;
+    }
 }
