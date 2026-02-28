@@ -57,12 +57,13 @@ function AuthContent() {
             }
         } catch (err: any) {
             console.error("Auth Error:", err);
+
             if (err.code === 'auth/invalid-credential') {
-                setError("Invalid email or password. Please check your credentials or sign up if you don't have an account.");
+                setError("invalid credentials try again");
             } else if (err.code === 'auth/email-already-in-use') {
                 setError("An account with this email already exists. Please log in.");
             } else {
-                setError(err.message || "An error occurred during authentication.");
+                setError("invalid credentials try again"); // Default to this simple message to avoid "next error" on screen
             }
         } finally {
             setLoading(false);
